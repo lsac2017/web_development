@@ -1,0 +1,18 @@
+# Ignore VCS and node
+.git
+.gitignore
+
+# Maven target
+/target
+
+# IDE files
+.vscode/
+*.iml
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local artifacts
+/uploads/
