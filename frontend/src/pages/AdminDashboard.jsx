@@ -372,6 +372,63 @@ const AdminDashboard = () => {
     },
   };
 
+  // --- Mobile Card View Styles (for < 768px) ---
+  const cardListStyle = {
+    display: 'grid',
+    gridTemplateColumns: '1fr',
+    gap: SPACING.MD,
+  };
+
+  const mobileCardStyle = {
+    backgroundColor: COLORS.WHITE,
+    border: `1px solid ${COLORS.LIGHT_GRAY}`,
+    borderRadius: '12px',
+    padding: SPACING.LG,
+    boxShadow: '0 3px 10px rgba(0,0,0,0.05)'
+  };
+
+  const mobileHeaderStyle = {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: SPACING.SM,
+  };
+
+  const mobileNameStyle = {
+    ...TYPOGRAPHY.SUBHEADLINE,
+    color: COLORS.DARK_SERPENT,
+    margin: 0,
+  };
+
+  const mobileRowStyle = {
+    display: 'grid',
+    gridTemplateColumns: '110px 1fr',
+    columnGap: SPACING.MD,
+    rowGap: SPACING.XS,
+    alignItems: 'start',
+    marginBottom: SPACING.XS,
+  };
+
+  const mobileLabelStyle = {
+    ...TYPOGRAPHY.CAPTION,
+    color: COLORS.GRAY,
+    fontWeight: 600,
+  };
+
+  const mobileValueStyle = {
+    ...TYPOGRAPHY.BODY,
+    color: COLORS.DARK_SERPENT,
+    wordBreak: 'break-word',
+  };
+
+  const mobileActionsRowStyle = {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '6px',
+    justifyContent: 'flex-start',
+    marginTop: SPACING.SM,
+  };
+
   // Group applicants by status for the stats cards
   const stats = {
     total: applicants.length,
@@ -657,242 +714,371 @@ const AdminDashboard = () => {
         </div>
         </div>
         
-        <div style={{ overflowX: 'auto', borderRadius: '0', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
-        <table style={tableStyle}>
-          {/* Adjusted widths: Degree +10%, redistributed from other columns */}
-          <colgroup>
-            <col style={{ width: '13%' }}/>
-            <col style={{ width: '15%' }}/>
-            <col style={{ width: '25%' }}/>{/* Degree */}
-            <col style={{ width: '9%' }}/>
-            <col style={{ width: '12%' }}/>
-            <col style={{ width: '8%' }}/>
-            <col style={{ width: '6%' }}/>
-            <col style={{ width: '7%' }}/>
-            <col style={{ width: '5%' }}/>
-          </colgroup>
-          <thead>
-            <tr>
-              <th style={thStyle}>Full Name</th>
-              <th style={thStyle}>Email</th>
-              <th style={thStyle}>Degree</th>
-              <th style={thStyle}>Project</th>
-              <th style={thStyle}>Experience</th>
-              <th style={thStyle}>Applied Date</th>
-              <th style={thStyle}>Status</th>
-              <th style={{ ...thStyle, textAlign: 'center' }}>Actions</th>
-              <th style={thStyle}>Resume</th>
-            </tr>
-          </thead>
-          <tbody>
+        {isMobile ? (
+          // Mobile stacked card layout
+          <div style={cardListStyle}>
             {loading ? (
-              <tr>
-                <td colSpan="9" style={{ ...tdStyle, textAlign: 'center', padding: '2rem' }}>
-                  Loading applicants...
-                </td>
-              </tr>
+              <div style={{ ...mobileCardStyle, textAlign: 'center' }}>Loading applicants...</div>
             ) : filteredApplicants.length === 0 ? (
-              <tr>
-                <td colSpan="9" style={{ ...tdStyle, textAlign: 'center', padding: '2rem' }}>
-                  No applicants found matching your criteria.
-                </td>
-              </tr>
+              <div style={{ ...mobileCardStyle, textAlign: 'center' }}>No applicants found matching your criteria.</div>
             ) : (
-              filteredApplicants.map((applicant, index) => (
-                <tr key={applicant.id} style={{ backgroundColor: index % 2 === 0 ? 'rgba(0,0,0,0.015)' : 'transparent' }}>
-                  {/* Full Name */}
-                  <td style={tdStyle}>
-                    <div
-                      title={`${applicant.firstName} ${applicant.lastName}`}
-                      style={{ fontWeight: '600', color: COLORS.DARK_SERPENT }}
-                    >
-                      {applicant.firstName} {applicant.lastName}
-                    </div>
-                  </td>
-                  
-                  {/* Email */}
-                  <td style={tdStyle}>
-                    <div
-                      title={applicant.email}
-                      style={{
-                        color: COLORS.DARK_SERPENT,
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      {applicant.email}
-                    </div>
-                  </td>
-                  
-                  {/* Degree */}
-                  <td style={{ ...tdStyle, minWidth: '180px' }}>
-                    <div title={applicant.degree || ''} style={{ color: COLORS.DARK_SERPENT }}>
-                      {applicant.degree || 'N/A'}
-                    </div>
-                  </td>
-                  
-                  {/* Project */}
-                  <td style={tdStyle}>
-                    <div
-                      title={applicant.projectAppliedFor || ''}
-                      style={{
-                        fontWeight: '500',
-                        color: COLORS.DARK_SERPENT,
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap'
-                      }}
-                    >
-                      {applicant.projectAppliedFor || 'N/A'}
-                    </div>
-                  </td>
-                  
-                  {/* Relevant Experience */}
-                  <td style={tdStyle}>
-                    <div
-                      title={applicant.relevantExperience || ''}
-                      style={{ 
-                        color: COLORS.DARK_SERPENT,
-                        fontSize: '0.9rem',
-                        lineHeight: '1.5',
-                        whiteSpace: 'pre-wrap',
-                        wordBreak: 'break-word'
-                      }}
-                    >
-                      {applicant.relevantExperience || 'N/A'}
-                    </div>
-                  </td>
-                  
-                  {/* Applied Date */}
-                  <td style={tdStyle}>
-                    <div style={{ color: COLORS.DARK_SERPENT, fontSize: '0.875rem' }}>
+              filteredApplicants.map((applicant) => (
+                <div key={applicant.id} style={mobileCardStyle}>
+                  <div style={mobileHeaderStyle}>
+                    <h3 style={mobileNameStyle}>{applicant.firstName} {applicant.lastName}</h3>
+                    <span style={statusBadgeStyle(applicant.status || 'pending')}>
+                      {applicant.status || 'pending'}
+                    </span>
+                  </div>
+                  <div style={mobileRowStyle}>
+                    <div style={mobileLabelStyle}>Email</div>
+                    <div style={mobileValueStyle}>{applicant.email}</div>
+                  </div>
+                  <div style={mobileRowStyle}>
+                    <div style={mobileLabelStyle}>Degree</div>
+                    <div style={mobileValueStyle}>{applicant.degree || 'N/A'}</div>
+                  </div>
+                  <div style={mobileRowStyle}>
+                    <div style={mobileLabelStyle}>Project</div>
+                    <div style={mobileValueStyle}>{applicant.projectAppliedFor || 'N/A'}</div>
+                  </div>
+                  <div style={mobileRowStyle}>
+                    <div style={mobileLabelStyle}>Experience</div>
+                    <div style={mobileValueStyle}>{applicant.relevantExperience || 'N/A'}</div>
+                  </div>
+                  <div style={mobileRowStyle}>
+                    <div style={mobileLabelStyle}>Applied</div>
+                    <div style={mobileValueStyle}>
                       {applicant.createdAt ? (
                         new Date(applicant.createdAt).toLocaleString('en-US', {
                           year: 'numeric', month: 'short', day: 'numeric',
                           hour: '2-digit', minute: '2-digit'
                         })
-                      ) : (
-                        '—'
-                      )}
+                      ) : '—'}
                     </div>
-                  </td>
-                  
-                  {/* Status */}
-                  <td style={tdStyle}>
-                    <span style={statusBadgeStyle(applicant.status || 'pending')}>
-                      {applicant.status || 'pending'}
-                    </span>
-                  </td>
-                  
-                  {/* Actions */}
-                  <td style={{ ...tdStyle, textAlign: 'center', minWidth: '220px' }}>
-                    <div style={{
-                      display: 'flex',
-                      flexDirection: isMobile ? 'column' : 'row',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexWrap: isMobile ? 'nowrap' : 'wrap',
-                      gap: isMobile ? '8px' : '6px'
-                    }}>
-                      <button
-                        style={{
-                          ...approveButtonStyle,
-                          ...uniformActionSize,
-                          opacity: applicant.status === 'approved' ? 0.5 : 1,
-                        }}
-                        onClick={() => updateApplicantStatus(applicant.id, 'approved')}
-                        disabled={applicant.status === 'approved' || isProcessing}
-                      >
-                        ✓ Approve
-                      </button>
-                      <button
-                        style={{
-                          ...rejectButtonStyle,
-                          ...uniformActionSize,
-                          opacity: applicant.status === 'rejected' ? 0.5 : 1,
-                        }}
-                        onClick={() => updateApplicantStatus(applicant.id, 'rejected')}
-                        disabled={applicant.status === 'rejected' || isProcessing}
-                      >
-                        ✕ Decline
-                      </button>
-                      <button
-                        style={{
-                          ...actionButtonStyle,
-                          ...uniformActionSize,
-                          backgroundColor: COLORS.WHITE,
-                          color: COLORS.CASTLETON_GREEN,
-                          border: `1px solid rgba(4, 98, 65, 0.35)`,
-                        }}
-                        onClick={() => editApplicant(applicant)}
-                        disabled={isProcessing}
-                      >
-                        ✎ Edit
-                      </button>
-                      <button
-                        style={{
-                          ...actionButtonStyle,
-                          ...uniformActionSize,
-                          backgroundColor: 'rgba(220, 53, 69, 0.08)',
-                          color: COLORS.ERROR,
-                          border: '1px solid rgba(220, 53, 69, 0.45)',
-                        }}
-                        onClick={() => deleteApplicant(applicant.id)}
-                        disabled={isProcessing}
-                      >
-                        🗑️ Delete
-                      </button>
-                    </div>
-                  </td>
-
-                  {/* Resume File */}
-                  <td style={{ ...tdStyle, textAlign: 'center', minWidth: '200px' }}>
-                    <div style={{
-                      display: 'flex',
-                      flexDirection: isMobile ? 'column' : 'row',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: isMobile ? '8px' : '6px'
-                    }}>
-                      <button
-                        onClick={() => openResume(applicant)}
-                        style={{
-                          ...actionButtonStyle,
-                          ...uniformActionSize,
-                          backgroundColor: 'rgba(4, 98, 65, 0.08)',
-                          color: COLORS.CASTLETON_GREEN,
-                          border: `1px solid rgba(4, 98, 65, 0.35)`,
-                        }}
-                        title="View Resume"
-                      >
-                        👁️ View
-                      </button>
-                      <a
-                        href={`${API_BASE_URL}/applicants/${applicant.id}/resume?download=true`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                          ...actionButtonStyle,
-                          ...uniformActionSize,
-                          backgroundColor: 'rgba(255, 179, 71, 0.15)',
-                          color: COLORS.DARK_SERPENT,
-                          border: '1px solid rgba(255, 179, 71, 0.5)',
-                          textDecoration: 'none',
-                        }}
-                        title="Download Resume"
-                      >
-                        📥 Download
-                      </a>
-                    </div>
-                  </td>
-                
-                </tr>
+                  </div>
+                  <div style={mobileActionsRowStyle}>
+                    <button
+                      style={{
+                        ...approveButtonStyle,
+                        ...uniformActionSize,
+                        opacity: applicant.status === 'approved' ? 0.5 : 1,
+                      }}
+                      onClick={() => updateApplicantStatus(applicant.id, 'approved')}
+                      disabled={applicant.status === 'approved' || isProcessing}
+                    >
+                      ✓ Approve
+                    </button>
+                    <button
+                      style={{
+                        ...rejectButtonStyle,
+                        ...uniformActionSize,
+                        opacity: applicant.status === 'rejected' ? 0.5 : 1,
+                      }}
+                      onClick={() => updateApplicantStatus(applicant.id, 'rejected')}
+                      disabled={applicant.status === 'rejected' || isProcessing}
+                    >
+                      ✕ Decline
+                    </button>
+                    <button
+                      style={{
+                        ...actionButtonStyle,
+                        ...uniformActionSize,
+                        backgroundColor: COLORS.WHITE,
+                        color: COLORS.CASTLETON_GREEN,
+                        border: `1px solid rgba(4, 98, 65, 0.35)`,
+                      }}
+                      onClick={() => editApplicant(applicant)}
+                      disabled={isProcessing}
+                    >
+                      ✎ Edit
+                    </button>
+                    <button
+                      style={{
+                        ...actionButtonStyle,
+                        ...uniformActionSize,
+                        backgroundColor: 'rgba(220, 53, 69, 0.08)',
+                        color: COLORS.ERROR,
+                        border: '1px solid rgba(220, 53, 69, 0.45)',
+                      }}
+                      onClick={() => deleteApplicant(applicant.id)}
+                      disabled={isProcessing}
+                    >
+                      🗑️ Delete
+                    </button>
+                    <button
+                      onClick={() => openResume(applicant)}
+                      style={{
+                        ...actionButtonStyle,
+                        ...uniformActionSize,
+                        backgroundColor: 'rgba(4, 98, 65, 0.08)',
+                        color: COLORS.CASTLETON_GREEN,
+                        border: `1px solid rgba(4, 98, 65, 0.35)`,
+                      }}
+                      title="View Resume"
+                    >
+                      👁️ View
+                    </button>
+                    <a
+                      href={`${API_BASE_URL}/applicants/${applicant.id}/resume?download=true`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        ...actionButtonStyle,
+                        ...uniformActionSize,
+                        backgroundColor: 'rgba(255, 179, 71, 0.15)',
+                        color: COLORS.DARK_SERPENT,
+                        border: '1px solid rgba(255, 179, 71, 0.5)',
+                        textDecoration: 'none',
+                      }}
+                      title="Download Resume"
+                    >
+                      📥 Download
+                    </a>
+                  </div>
+                </div>
               ))
             )}
-          </tbody>
-        </table>
-        </div>
+          </div>
+        ) : (
+          // Desktop/tablet table layout (existing)
+          <div style={{ overflowX: 'auto', borderRadius: '0', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
+            <table style={tableStyle}>
+              {/* Adjusted widths: Degree +10%, redistributed from other columns */}
+              <colgroup>
+                <col style={{ width: '13%' }}/>
+                <col style={{ width: '15%' }}/>
+                <col style={{ width: '25%' }}/>{/* Degree */}
+                <col style={{ width: '9%' }}/>
+                <col style={{ width: '12%' }}/>
+                <col style={{ width: '8%' }}/>
+                <col style={{ width: '6%' }}/>
+                <col style={{ width: '7%' }}/>
+                <col style={{ width: '5%' }}/>
+              </colgroup>
+              <thead>
+                <tr>
+                  <th style={thStyle}>Full Name</th>
+                  <th style={thStyle}>Email</th>
+                  <th style={thStyle}>Degree</th>
+                  <th style={thStyle}>Project</th>
+                  <th style={thStyle}>Experience</th>
+                  <th style={thStyle}>Applied Date</th>
+                  <th style={thStyle}>Status</th>
+                  <th style={{ ...thStyle, textAlign: 'center' }}>Actions</th>
+                  <th style={thStyle}>Resume</th>
+                </tr>
+              </thead>
+              <tbody>
+                {loading ? (
+                  <tr>
+                    <td colSpan="9" style={{ ...tdStyle, textAlign: 'center', padding: '2rem' }}>
+                      Loading applicants...
+                    </td>
+                  </tr>
+                ) : filteredApplicants.length === 0 ? (
+                  <tr>
+                    <td colSpan="9" style={{ ...tdStyle, textAlign: 'center', padding: '2rem' }}>
+                      No applicants found matching your criteria.
+                    </td>
+                  </tr>
+                ) : (
+                  filteredApplicants.map((applicant, index) => (
+                    <tr key={applicant.id} style={{ backgroundColor: index % 2 === 0 ? 'rgba(0,0,0,0.015)' : 'transparent' }}>
+                      {/* Full Name */}
+                      <td style={tdStyle}>
+                        <div
+                          title={`${applicant.firstName} ${applicant.lastName}`}
+                          style={{ fontWeight: '600', color: COLORS.DARK_SERPENT }}
+                        >
+                          {applicant.firstName} {applicant.lastName}
+                        </div>
+                      </td>
+                      
+                      {/* Email */}
+                      <td style={tdStyle}>
+                        <div
+                          title={applicant.email}
+                          style={{
+                            color: COLORS.DARK_SERPENT,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          {applicant.email}
+                        </div>
+                      </td>
+                      
+                      {/* Degree */}
+                      <td style={{ ...tdStyle, minWidth: '180px' }}>
+                        <div title={applicant.degree || ''} style={{ color: COLORS.DARK_SERPENT }}>
+                          {applicant.degree || 'N/A'}
+                        </div>
+                      </td>
+                      
+                      {/* Project */}
+                      <td style={tdStyle}>
+                        <div
+                          title={applicant.projectAppliedFor || ''}
+                          style={{
+                            fontWeight: '500',
+                            color: COLORS.DARK_SERPENT,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap'
+                          }}
+                        >
+                          {applicant.projectAppliedFor || 'N/A'}
+                        </div>
+                      </td>
+                      
+                      {/* Relevant Experience */}
+                      <td style={tdStyle}>
+                        <div
+                          title={applicant.relevantExperience || ''}
+                          style={{ 
+                            color: COLORS.DARK_SERPENT,
+                            fontSize: '0.9rem',
+                            lineHeight: '1.5',
+                            whiteSpace: 'pre-wrap',
+                            wordBreak: 'break-word'
+                          }}
+                        >
+                          {applicant.relevantExperience || 'N/A'}
+                        </div>
+                      </td>
+                      
+                      {/* Applied Date */}
+                      <td style={tdStyle}>
+                        <div style={{ color: COLORS.DARK_SERPENT, fontSize: '0.875rem' }}>
+                          {applicant.createdAt ? (
+                            new Date(applicant.createdAt).toLocaleString('en-US', {
+                              year: 'numeric', month: 'short', day: 'numeric',
+                              hour: '2-digit', minute: '2-digit'
+                            })
+                          ) : (
+                            '—'
+                          )}
+                        </div>
+                      </td>
+                      
+                      {/* Status */}
+                      <td style={tdStyle}>
+                        <span style={statusBadgeStyle(applicant.status || 'pending')}>
+                          {applicant.status || 'pending'}
+                        </span>
+                      </td>
+                      
+                      {/* Actions */}
+                      <td style={{ ...tdStyle, textAlign: 'center', minWidth: '220px' }}>
+                        <div style={{
+                          display: 'flex',
+                          flexDirection: isMobile ? 'column' : 'row',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          flexWrap: isMobile ? 'nowrap' : 'wrap',
+                          gap: isMobile ? '8px' : '6px'
+                        }}>
+                          <button
+                            style={{
+                              ...approveButtonStyle,
+                              ...uniformActionSize,
+                              opacity: applicant.status === 'approved' ? 0.5 : 1,
+                            }}
+                            onClick={() => updateApplicantStatus(applicant.id, 'approved')}
+                            disabled={applicant.status === 'approved' || isProcessing}
+                          >
+                            ✓ Approve
+                          </button>
+                          <button
+                            style={{
+                              ...rejectButtonStyle,
+                              ...uniformActionSize,
+                              opacity: applicant.status === 'rejected' ? 0.5 : 1,
+                            }}
+                            onClick={() => updateApplicantStatus(applicant.id, 'rejected')}
+                            disabled={applicant.status === 'rejected' || isProcessing}
+                          >
+                            ✕ Decline
+                          </button>
+                          <button
+                            style={{
+                              ...actionButtonStyle,
+                              ...uniformActionSize,
+                              backgroundColor: COLORS.WHITE,
+                              color: COLORS.CASTLETON_GREEN,
+                              border: `1px solid rgba(4, 98, 65, 0.35)`,
+                            }}
+                            onClick={() => editApplicant(applicant)}
+                            disabled={isProcessing}
+                          >
+                            ✎ Edit
+                          </button>
+                          <button
+                            style={{
+                              ...actionButtonStyle,
+                              ...uniformActionSize,
+                              backgroundColor: 'rgba(220, 53, 69, 0.08)',
+                              color: COLORS.ERROR,
+                              border: '1px solid rgba(220, 53, 69, 0.45)',
+                            }}
+                            onClick={() => deleteApplicant(applicant.id)}
+                            disabled={isProcessing}
+                          >
+                            🗑️ Delete
+                          </button>
+                        </div>
+                      </td>
+
+                      {/* Resume File */}
+                      <td style={{ ...tdStyle, textAlign: 'center', minWidth: '200px' }}>
+                        <div style={{
+                          display: 'flex',
+                          flexDirection: isMobile ? 'column' : 'row',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: isMobile ? '8px' : '6px'
+                        }}>
+                          <button
+                            onClick={() => openResume(applicant)}
+                            style={{
+                              ...actionButtonStyle,
+                              ...uniformActionSize,
+                              backgroundColor: 'rgba(4, 98, 65, 0.08)',
+                              color: COLORS.CASTLETON_GREEN,
+                              border: `1px solid rgba(4, 98, 65, 0.35)`,
+                            }}
+                            title="View Resume"
+                          >
+                            👁️ View
+                          </button>
+                          <a
+                            href={`${API_BASE_URL}/applicants/${applicant.id}/resume?download=true`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              ...actionButtonStyle,
+                              ...uniformActionSize,
+                              backgroundColor: 'rgba(255, 179, 71, 0.15)',
+                              color: COLORS.DARK_SERPENT,
+                              border: '1px solid rgba(255, 179, 71, 0.5)',
+                              textDecoration: 'none',
+                            }}
+                            title="Download Resume"
+                          >
+                            📥 Download
+                          </a>
+                        </div>
+                      </td>
+                    
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
 
         {/* Resume Preview Modal */}
         {showResumeModal && (

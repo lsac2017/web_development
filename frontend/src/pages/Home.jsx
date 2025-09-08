@@ -20,7 +20,12 @@ const Home = () => {
   const heroVideoWrapperStyle = {
     position: 'relative',
     width: '100%',
-    height: `calc(100vh - ${headerHeight}px)`,
+    // Make hero area shorter on small screens to keep CTA above the fold
+    height: isMobile
+      ? `calc(70vh - ${headerHeight}px)`
+      : isTablet
+      ? `calc(85vh - ${headerHeight}px)`
+      : `calc(100vh - ${headerHeight}px)`,
     borderRadius: '0',
     overflow: 'hidden',
     boxShadow: '0 20px 50px rgba(0,0,0,0.12)'
@@ -49,7 +54,7 @@ const Home = () => {
   const titleStyle = {
     ...(isMobile ? TYPOGRAPHY.DISPLAY_MOBILE : TYPOGRAPHY.DISPLAY),
     color: COLORS.DARK_SERPENT,
-    marginBottom: SPACING.XL,
+    marginBottom: isMobile ? SPACING.LG : SPACING.XL,
     textAlign: 'center',
   };
 
@@ -59,14 +64,14 @@ const Home = () => {
     ...TYPOGRAPHY.BUTTON,
     backgroundColor: COLORS.SAFFRON,
     color: COLORS.DARK_SERPENT,
-    padding: `${SPACING.MD} ${SPACING.XXL}`,
+    padding: `${isMobile ? SPACING.MD : SPACING.LG} ${isMobile ? SPACING.XL : SPACING.XXL}`,
     border: 'none',
     borderRadius: '12px',
     textDecoration: 'none',
     cursor: 'pointer',
     transition: 'all 0.3s ease',
     display: 'inline-block',
-    marginBottom: SPACING.MD,
+    marginBottom: isMobile ? SPACING.SM : SPACING.MD,
     boxShadow: '0 4px 12px rgba(255, 179, 71, 0.3)',
     ':hover': {
       transform: 'translateY(-2px)',
@@ -78,19 +83,19 @@ const Home = () => {
     ...TYPOGRAPHY.BUTTON,
     backgroundColor: 'rgba(4, 98, 65, 0.12)',
     color: COLORS.CASTLETON_GREEN,
-    padding: `${SPACING.MD} ${SPACING.XXL}`,
+    padding: `${isMobile ? SPACING.MD : SPACING.LG} ${isMobile ? SPACING.XL : SPACING.XXL}`,
     border: `2px solid ${COLORS.CASTLETON_GREEN}`,
     borderRadius: '12px',
     textDecoration: 'none',
     cursor: 'pointer',
     transition: 'all 0.3s ease',
     display: 'inline-block',
-    marginBottom: SPACING.MD,
+    marginBottom: isMobile ? SPACING.SM : SPACING.MD,
   };
 
   const featuresStyle = {
     backgroundColor: COLORS.WHITE,
-    padding: `${isMobile ? SPACING.XXXL : SPACING.SECTION} ${isMobile ? SPACING.MD : SPACING.XL}`,
+    padding: `${isMobile ? SPACING.XXL : SPACING.SECTION} ${isMobile ? SPACING.MD : SPACING.XL}`,
   };
 
   const featuresGridStyle = {
@@ -104,7 +109,7 @@ const Home = () => {
 
   const featureCardStyle = {
     backgroundColor: COLORS.SEA_SALT,
-    padding: SPACING.XXL,
+    padding: isMobile ? SPACING.XL : SPACING.XXL,
     borderRadius: '16px',
     textAlign: 'center',
     boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
@@ -117,8 +122,8 @@ const Home = () => {
   };
 
   const featureIconStyle = {
-    fontSize: '4rem',
-    marginBottom: SPACING.LG,
+    fontSize: isMobile ? '2.5rem' : isTablet ? '3.25rem' : '4rem',
+    marginBottom: isMobile ? SPACING.MD : SPACING.LG,
     display: 'block',
   };
 
@@ -136,14 +141,14 @@ const Home = () => {
   const statsStyle = {
     backgroundColor: COLORS.CASTLETON_GREEN,
     color: COLORS.WHITE,
-    padding: `${isMobile ? SPACING.XXXL : SPACING.SECTION} ${isMobile ? SPACING.MD : SPACING.XL}`,
+    padding: `${isMobile ? SPACING.XXL : SPACING.SECTION} ${isMobile ? SPACING.MD : SPACING.XL}`,
     textAlign: 'center',
   };
 
   const statsGridStyle = {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-    gap: SPACING.XXL,
+    gap: isMobile ? SPACING.LG : SPACING.XXL,
     maxWidth: '1000px',
     margin: `${SPACING.XXL} auto 0`,
   };
@@ -164,7 +169,7 @@ const Home = () => {
   const ctaButtonsRowStyle = {
     display: 'flex',
     flexWrap: 'wrap',
-    gap: SPACING.MD,
+    gap: isMobile ? SPACING.SM : SPACING.MD,
     justifyContent: 'center',
     alignItems: 'center',
   };
@@ -341,7 +346,7 @@ const Home = () => {
       {/* CTA Section */}
       <section style={{
         backgroundColor: COLORS.PAPER,
-        padding: `${SPACING.SECTION} ${SPACING.XL}`,
+        padding: `${isMobile ? SPACING.XXL : SPACING.SECTION} ${isMobile ? SPACING.MD : SPACING.XL}`,
         textAlign: 'center',
       }}>
         <Container style={{ padding: 0 }}>
@@ -355,7 +360,7 @@ const Home = () => {
           <p style={{
             ...TYPOGRAPHY.BODY_LARGE,
             color: COLORS.DARK_SERPENT,
-            marginBottom: SPACING.XXL,
+            marginBottom: isMobile ? SPACING.XL : SPACING.XXL,
             maxWidth: '700px',
             margin: `0 auto ${SPACING.XXL}`,
           }}>
@@ -364,7 +369,7 @@ const Home = () => {
           <Link to="/register" style={{
             ...ctaButtonStyle,
             marginRight: '0',
-            padding: `${SPACING.LG} ${SPACING.XXXL}`,
+            padding: `${isMobile ? SPACING.MD : SPACING.LG} ${isMobile ? SPACING.XXL : SPACING.XXXL}`,
           }}>
             Start your journey
           </Link>

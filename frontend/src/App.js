@@ -9,6 +9,7 @@ import Register from './pages/Register.jsx';
 import Login from './pages/Login.jsx';
 import AdminDashboard from './pages/AdminDashboard.jsx';
 import './App.css';
+import './styles/base.css';
 
 function App() {
   return (
