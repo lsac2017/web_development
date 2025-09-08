@@ -40,7 +40,7 @@ const Projects = () => {
     gridTemplateColumns: isMobile ? '1fr' : '70% 30%',
     gap: 0, // no space between video and text
     alignItems: 'stretch',
-    minHeight: isMobile ? '60vh' : '90vh',
+    minHeight: isMobile ? '70vh' : isTablet ? '80vh' : '90vh',
   }
 
   const heroVideoWrapStyle = {
@@ -339,7 +339,7 @@ const Projects = () => {
                     <img
                       src={getProjectImage(project)}
                       alt={project.title}
-                      style={{ width: '100%', height: '200%', objectFit: 'cover' }}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />
                   ) : (
                     <div style={projectImagePlaceholderStyle}>{getProjectIcon(project)}</div>
