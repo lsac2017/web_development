@@ -18,8 +18,8 @@ const Login = () => {
 
   const cardStyle = {
     backgroundColor: COLORS.WHITE,
-    padding: isMobile ? SPACING.XL : SPACING.XXL,
-    borderRadius: '0',
+    padding: isMobile ? SPACING.LG : SPACING.XXL,
+    borderRadius: '12px',
     boxShadow: '0 8px 20px rgba(0,0,0,0.06)',
     border: '1px solid rgba(4, 98, 65, 0.1)',
   };
@@ -54,11 +54,12 @@ const Login = () => {
     width: '100%',
     padding: `${SPACING.SM} ${SPACING.MD}`,
     border: `1px solid ${COLORS.LIGHT_GRAY}`,
-    borderRadius: '0',
+    borderRadius: '8px',
     ...TYPOGRAPHY.BODY,
     transition: 'all 0.2s ease',
     backgroundColor: COLORS.WHITE,
     color: COLORS.DARK_SERPENT,
+    minHeight: 44,
     ':focus': {
       borderColor: COLORS.CASTLETON_GREEN,
       outline: 'none',
@@ -76,13 +77,13 @@ const Login = () => {
     ...TYPOGRAPHY.BUTTON,
     backgroundColor: COLORS.SAFFRON,
     color: COLORS.DARK_SERPENT,
-    padding: `${SPACING.MD} ${SPACING.XL}`,
+    padding: `${isMobile ? SPACING.MD : SPACING.LG} ${SPACING.XL}`,
     border: 'none',
-    borderRadius: '0',
+    borderRadius: '10px',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
     width: '100%',
-    marginTop: SPACING.MD,
+    marginTop: isMobile ? SPACING.SM : SPACING.MD,
     marginBottom: SPACING.SM,
     boxShadow: '0 4px 12px rgba(255, 179, 71, 0.3)',
     ':hover': {
@@ -188,7 +189,7 @@ const Login = () => {
     <div style={{backgroundColor: COLORS.PAPER, minHeight: '100vh'}}>
       <Container>
         <div style={{
-          maxWidth: '600px',
+          maxWidth: 600,
           margin: '0 auto',
           padding: isMobile ? SPACING.MD : SPACING.XL,
           paddingTop: isMobile ? SPACING.XL : SPACING.XXL,
