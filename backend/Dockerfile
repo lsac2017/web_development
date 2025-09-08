@@ -1,7 +1,8 @@
 # syntax=docker/dockerfile:1
 
 # ---- Build stage ----
-FROM maven:3.9.6-eclipse-temurin-17 AS build
+# Use Java 21 to match pom.xml <java.version>21
+FROM maven:3.9.6-eclipse-temurin-21 AS build
 WORKDIR /app
 
 # Pre-copy dependencies to leverage Docker layer caching
@@ -13,7 +14,8 @@ COPY src ./src
 RUN mvn -B -q -DskipTests package
 
 # ---- Runtime stage ----
-FROM eclipse-temurin:17-jre-alpine
+# Use Java 21 runtime
+FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
 # Environment
