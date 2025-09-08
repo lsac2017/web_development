@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Local environment overrides (do not commit real secrets)
+application-local.properties
