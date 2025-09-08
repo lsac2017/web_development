@@ -72,8 +72,8 @@ const Footer = () => {
   const copyrightStyle = {
     ...textStyle,
     textAlign: 'center',
-    marginTop: SPACING.XXL,
-    paddingTop: SPACING.XXL,
+    marginTop: SPACING.XS,
+    paddingTop: SPACING.XS,
     borderTop: `1px solid ${COLORS.CASTLETON_GREEN}`,
     gridColumn: '1 / -1',
   };
@@ -115,7 +115,7 @@ const Footer = () => {
           <a href="/about" style={linkStyle}>About Us</a>
           <a href="/projects" style={linkStyle}>Our Projects</a>
           <a href="/register" style={linkStyle}>Apply Now</a>
-          <a href="/login" style={linkStyle}>Admin Portal</a>
+          <a href="/admin/login" style={linkStyle}>Admin Portal</a>
         </div>
 
         <div style={sectionStyle}>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { COLORS, TYPOGRAPHY, SPACING, BREAKPOINTS } from '../constants/colors';
 import useMediaQuery from '../hooks/useMediaQuery';
@@ -8,13 +8,16 @@ const Header = () => {
   const isAdmin = localStorage.getItem('adminToken');
   const isMobile = useMediaQuery(`(max-width: ${BREAKPOINTS.MOBILE})`);
   const [menuOpen, setMenuOpen] = useState(false);
+  const headerHeight = isMobile ? 38 : 54; // px, used for layout calculations (reduced)
 
   const headerStyle = {
     backgroundColor: COLORS.WHITE,
-    padding: isMobile ? `${SPACING.SM} ${SPACING.MD}` : `${SPACING.MD} ${SPACING.XL}`,
-    boxShadow: '0 2px 10px rgba(0,0,0,0.06)',
-    position: 'sticky',
+    padding: isMobile ? `${SPACING.XS} ${SPACING.MD}` : `${SPACING.SM} ${SPACING.XL}`,
+    position: 'fixed',
     top: 0,
+    left: 0,
+    right: 0,
+    width: '100%',
     zIndex: 1000,
   };
 
@@ -24,10 +27,11 @@ const Header = () => {
     alignItems: 'center',
     maxWidth: '1200px',
     margin: '0 auto',
-    height: '35px',
-    // Responsive stacking on mobile to avoid overflow
-    flexDirection: isMobile ? 'column' : 'row',
-    gap: isMobile ? SPACING.SM : 0,
+    minHeight: `${headerHeight}px`,
+    flexDirection: 'row', // always row, keeps logo left
+    gap: 0,
+    padding: `0 ${SPACING.LG}`, // add side padding for breathing space
+
   };
   
 
@@ -50,6 +54,11 @@ const Header = () => {
     border: isMobile ? `1px solid rgba(4, 98, 65, 0.08)` : 'none',
     borderRadius: isMobile ? '10px' : '0',
     padding: isMobile ? SPACING.MD : 0,
+    position: isMobile ? 'absolute' : 'static',
+    top: isMobile ? `${headerHeight}px` : 'auto',
+    left: isMobile ? 0 : 'auto',
+    right: isMobile ? 0 : 'auto',
+    boxShadow: isMobile ? '0 8px 16px rgba(0,0,0,0.08)' : 'none',
   };
 
   const linkStyle = {
@@ -100,7 +109,22 @@ const Header = () => {
     cursor: 'pointer',
   };
 
-  // mobileMenuStyle merged into navStyle via isMobile
+  // Accessibility & robustness: close menu on route change and Esc key; prevent stale open state on resize
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (!isMobile) setMenuOpen(false);
+  }, [isMobile]);
+
+  useEffect(() => {
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') setMenuOpen(false);
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('adminToken');
@@ -114,12 +138,14 @@ const Header = () => {
           <img 
             src="/Lifewood_Logo.png" 
             alt="Lifewood Logo" 
-            style={{ height: isMobile ? '56px' : '80px', objectFit: 'contain' }} 
+            style={{ height: isMobile ? '34px' : '50px', objectFit: 'contain' }} 
           />
         </Link>
         
         <button
           aria-label="Toggle navigation"
+          aria-controls="nav-menu"
+          aria-expanded={menuOpen}
           onClick={() => setMenuOpen((prev) => !prev)}
           style={burgerButtonStyle}
         >
@@ -133,7 +159,7 @@ const Header = () => {
           }} />
         </button>
 
-        <nav style={navStyle}>
+        <nav id="nav-menu" style={navStyle}>
           <Link 
             to="/" 
             style={location.pathname === '/' ? activeLinkStyle : linkStyle}
@@ -163,12 +189,6 @@ const Header = () => {
                 }}
               >
                 Apply/Register
-              </Link>
-              <Link 
-                to="/login" 
-                style={location.pathname === '/login' ? activeLinkStyle : linkStyle}
-              >
-                Login
               </Link>
             </>
           ) : (

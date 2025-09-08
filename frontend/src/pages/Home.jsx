@@ -6,22 +6,21 @@ import useMediaQuery from '../hooks/useMediaQuery';
 
 const Home = () => {
   const isMobile = useMediaQuery(`(max-width: ${BREAKPOINTS.MOBILE})`);
+  const isTablet = useMediaQuery(`(max-width: ${BREAKPOINTS.TABLET})`);
+  const headerHeight = isMobile ? 48 : 64; // must match Header.jsx
 
   const heroStyle = {
     background: `linear-gradient(135deg, ${COLORS.PAPER} 0%, #ffffff 60%)`,
     textAlign: 'center',
-    minHeight: isMobile ? '70vh' : '65vh',
-    display: 'flex',
-    height: '60px',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
+    minHeight: 'auto',
+    display: 'block',
+    padding: 0,
   };
 
   const heroVideoWrapperStyle = {
     position: 'relative',
     width: '100%',
-    minHeight: isMobile ? '70vh' : '65vh',
+    height: `calc(100vh - ${headerHeight}px)`,
     borderRadius: '0',
     overflow: 'hidden',
     boxShadow: '0 20px 50px rgba(0,0,0,0.12)'
@@ -54,21 +53,7 @@ const Home = () => {
     textAlign: 'center',
   };
 
-  const subtitleStyle = {
-    ...(isMobile ? TYPOGRAPHY.HEADLINE_MOBILE : TYPOGRAPHY.HEADLINE),
-    color: COLORS.CASTLETON_GREEN,
-    marginBottom: SPACING.XXL,
-    textAlign: 'center',
-  };
-
-  const descriptionStyle = {
-    ...TYPOGRAPHY.BODY_LARGE,
-    color: COLORS.DARK_SERPENT,
-    marginBottom: SPACING.XXXL,
-    maxWidth: '900px',
-    margin: `0 auto ${SPACING.XXXL}`,
-    textAlign: 'center',
-  };
+  // Subtitle and description styles were unused; removed to keep code tidy
 
   const ctaButtonStyle = {
     ...TYPOGRAPHY.BUTTON,
@@ -81,7 +66,6 @@ const Home = () => {
     cursor: 'pointer',
     transition: 'all 0.3s ease',
     display: 'inline-block',
-    marginRight: SPACING.LG,
     marginBottom: SPACING.MD,
     boxShadow: '0 4px 12px rgba(255, 179, 71, 0.3)',
     ':hover': {
@@ -106,15 +90,16 @@ const Home = () => {
 
   const featuresStyle = {
     backgroundColor: COLORS.WHITE,
-    padding: `${SPACING.SECTION} ${SPACING.XL}`,
+    padding: `${isMobile ? SPACING.XXXL : SPACING.SECTION} ${isMobile ? SPACING.MD : SPACING.XL}`,
   };
 
   const featuresGridStyle = {
     display: 'grid',
-    gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
+    gridTemplateColumns: isMobile ? '1fr' : isTablet ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)',
     gap: isMobile ? SPACING.XL : SPACING.XXL,
     maxWidth: '1200px',
     margin: '0 auto',
+    alignItems: 'stretch',
   };
 
   const featureCardStyle = {
@@ -151,7 +136,7 @@ const Home = () => {
   const statsStyle = {
     backgroundColor: COLORS.CASTLETON_GREEN,
     color: COLORS.WHITE,
-    padding: `${SPACING.SECTION} ${SPACING.XL}`,
+    padding: `${isMobile ? SPACING.XXXL : SPACING.SECTION} ${isMobile ? SPACING.MD : SPACING.XL}`,
     textAlign: 'center',
   };
 
@@ -171,9 +156,17 @@ const Home = () => {
 
   const statNumberStyle = {
     ...TYPOGRAPHY.DISPLAY,
-    fontSize: isMobile ? '2.5rem' : '3.5rem',
+    fontSize: isMobile ? '2.5rem' : isTablet ? '3rem' : '3.5rem',
     color: COLORS.SAFFRON,
     marginBottom: SPACING.SM,
+  };
+
+  const ctaButtonsRowStyle = {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: SPACING.MD,
+    justifyContent: 'center',
+    alignItems: 'center',
   };
 
   const statLabelStyle = {
@@ -183,6 +176,7 @@ const Home = () => {
 
   // Count-up animation utilities
   const useInView = (options = { threshold: 0.2 }) => {
+    const { threshold } = options;
     const ref = useRef(null);
     const [inView, setInView] = useState(false);
     useEffect(() => {
@@ -195,10 +189,10 @@ const Home = () => {
             observer.unobserve(entry.target);
           }
         });
-      }, options);
+      }, { threshold });
       observer.observe(el);
       return () => observer.disconnect();
-    }, [options.threshold]);
+    }, [threshold]);
     return { ref, inView };
   };
 
@@ -254,7 +248,7 @@ const Home = () => {
   };
 
   return (
-    <div>
+    <div style={{ paddingTop: headerHeight, marginTop: 0 }}>
       {/* Hero Section */}
       <section style={heroStyle}>
         <div style={heroVideoWrapperStyle}>
@@ -271,10 +265,7 @@ const Home = () => {
           <div style={{ position: 'relative', zIndex: 2, height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Container style={{ padding: 0 }}>
               <h1 style={{ ...titleStyle, color: COLORS.WHITE }}>Welcome to Lifewood</h1>
-              <br></br>
-              <br></br>
-              <br></br>
-              <div>
+              <div style={ctaButtonsRowStyle}>
                 <Link to="/register" style={ctaButtonStyle}>
                   Apply now
                 </Link>

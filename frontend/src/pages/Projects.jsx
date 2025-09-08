@@ -1,15 +1,33 @@
 "use client"
 
-import { useMemo } from "react"
+import { useMemo, useRef, useState } from "react"
 import { Link } from "react-router-dom"
 import { COLORS, TYPOGRAPHY, SPACING, BREAKPOINTS } from "../constants/colors"
+import { LABELS } from "../constants/text"
 import Container from "../components/Container"
 import useMediaQuery from "../hooks/useMediaQuery"
 
 const Projects = () => {
   const isMobile = useMediaQuery(`(max-width: ${BREAKPOINTS.MOBILE})`)
   const isTablet = useMediaQuery(`(max-width: ${BREAKPOINTS.TABLET})`)
-  
+  const videoRef = useRef(null)
+  const [isMuted, setIsMuted] = useState(true)
+
+  const soundToggleStyle = {
+    position: 'absolute',
+    right: SPACING.XL,
+    bottom: SPACING.XL,
+    zIndex: 2,
+    ...TYPOGRAPHY.CAPTION,
+    padding: `${SPACING.XS} ${SPACING.MD}`,
+    borderRadius: '999px',
+    border: 'none',
+    backgroundColor: 'rgba(255,255,255,0.85)',
+    color: COLORS.DARK_SERPENT,
+    cursor: 'pointer',
+    boxShadow: '0 2px 10px rgba(0,0,0,0.15)',
+    transition: 'background-color 0.2s ease',
+  }
 
   const heroStyle = {
     background: COLORS.SEA_SALT,
@@ -272,7 +290,32 @@ const Projects = () => {
         <Container style={{ width: '100%', maxWidth: '100%', margin: 0, padding: 0 }}>
           <div style={heroInnerStyle}>
             <div style={heroVideoWrapStyle}>
-              <video src="/videos/Project.mp4" style={heroVideoStyle} autoPlay loop muted playsInline />
+              <video
+                ref={videoRef}
+                src="/videos/Project.mp4"
+                style={heroVideoStyle}
+                autoPlay
+                loop
+                muted={isMuted}
+                playsInline
+              />
+              <button
+                type="button"
+                aria-label={isMuted ? 'Unmute background video' : 'Mute background video'}
+                onClick={() => {
+                  const next = !isMuted
+                  setIsMuted(next)
+                  if (videoRef.current) {
+                    videoRef.current.muted = next
+                    if (!next) {
+                      videoRef.current.play().catch(() => {})
+                    }
+                  }
+                }}
+                style={soundToggleStyle}
+              >
+                {isMuted ? LABELS.UNMUTE : LABELS.MUTE}
+              </button>
             </div>
             <div style={heroTextStyle}>
               <h1 style={headerStyle}>Our Projects</h1>

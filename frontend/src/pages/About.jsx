@@ -102,6 +102,27 @@ const About = () => {
     color: COLORS.DARK_SERPENT,
   };
 
+  const proseStyle = {
+    maxWidth: '900px',
+    margin: '0 auto',
+    textAlign: 'left',
+    lineHeight: 1.8,
+  };
+
+  const leadTextStyle = {
+    ...TYPOGRAPHY.BODY_LARGE,
+    color: COLORS.DARK_SERPENT,
+    marginBottom: SPACING.MD,
+  };
+
+  const accentBarStyle = {
+    width: 64,
+    height: 4,
+    backgroundColor: COLORS.CASTLETON_GREEN,
+    borderRadius: 999,
+    margin: `${SPACING.SM} auto ${SPACING.XL}`,
+  };
+
   const valuesGridStyle = {
     display: 'grid',
     gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(350px, 1fr))',
@@ -243,19 +264,22 @@ const About = () => {
       <section style={sectionStyle}>
         <Container style={{ padding: 0 }}>
           <div style={cardStyle}>
-            <h2 style={cardTitleStyle}>Our mission</h2>
-            <p style={cardTextStyle}>
-              At Lifewood, we believe technology should enhance human potential and create meaningful 
-              solutions for tomorrow's challenges. Our mission is to develop cutting-edge artificial 
-              intelligence and machine learning technologies that drive innovation across industries 
-              while maintaining ethical standards and social responsibility.
-            </p>
-            <p style={cardTextStyle}>
-              We are committed to creating sustainable, scalable solutions that not only advance 
-              technological capabilities but also contribute positively to society and the environment. 
-              Through collaboration, innovation, and dedication to excellence, we strive to be at the 
-              forefront of the technological revolution.
-            </p>
+            <h2 style={{ ...cardTitleStyle, textAlign: 'center' }}>Our mission</h2>
+            <div style={accentBarStyle} />
+            <div style={proseStyle}>
+              <p style={leadTextStyle}>
+                At Lifewood, we believe technology should enhance human potential and create meaningful
+                solutions for tomorrow's challenges. Our mission is to develop cutting-edge artificial
+                intelligence and machine learning technologies that drive innovation across industries
+                while maintaining ethical standards and social responsibility.
+              </p>
+              <p style={cardTextStyle}>
+                We are committed to creating sustainable, scalable solutions that not only advance
+                technological capabilities but also contribute positively to society and the environment.
+                Through collaboration, innovation, and dedication to excellence, we strive to be at the
+                forefront of the technological revolution.
+              </p>
+            </div>
           </div>
         </Container>
       </section>
@@ -264,18 +288,21 @@ const About = () => {
       <section style={{...sectionStyle, backgroundColor: COLORS.SEA_SALT}}>
         <Container style={{ padding: 0 }}>
           <div style={cardStyle}>
-            <h2 style={cardTitleStyle}>Our vision</h2>
-            <p style={cardTextStyle}>
-              To be the leading force in technological innovation, creating solutions that transform 
-              industries and improve lives worldwide. We envision a world where artificial intelligence 
-              and human intelligence work together seamlessly to solve the most pressing challenges 
-              of our time.
-            </p>
-            <p style={cardTextStyle}>
-              Our vision extends beyond just developing technology – we aim to cultivate a community 
-              of brilliant minds who share our passion for innovation, ethical development, and 
-              making a positive impact on society through technological advancement.
-            </p>
+            <h2 style={{ ...cardTitleStyle, textAlign: 'center' }}>Our vision</h2>
+            <div style={accentBarStyle} />
+            <div style={proseStyle}>
+              <p style={leadTextStyle}>
+                To be the leading force in technological innovation, creating solutions that transform
+                industries and improve lives worldwide. We envision a world where artificial intelligence
+                and human intelligence work together seamlessly to solve the most pressing challenges
+                of our time.
+              </p>
+              <p style={cardTextStyle}>
+                Our vision extends beyond just developing technology – we aim to cultivate a community
+                of brilliant minds who share our passion for innovation, ethical development, and
+                making a positive impact on society through technological advancement.
+              </p>
+            </div>
           </div>
         </Container>
       </section>
@@ -384,7 +411,6 @@ const About = () => {
           </h2>
           <p style={{
             ...TYPOGRAPHY.BODY_LARGE,
-            marginBottom: SPACING.XXL,
             color: COLORS.DARK_SERPENT,
             maxWidth: '700px',
             margin: `0 auto ${SPACING.XXL}`,

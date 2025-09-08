@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams, useNavigate } from 'react-router-dom';
 import { COLORS, TYPOGRAPHY, SPACING, BREAKPOINTS } from '../constants/colors';
 import Container from '../components/Container';
 import { applicantAPI, projectsAPI } from '../services/api';
 import useMediaQuery from '../hooks/useMediaQuery';
+import { LABELS } from '../constants/text';
 
 const Register = () => {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const isMobile = useMediaQuery(`(max-width: ${BREAKPOINTS.MOBILE})`);
+  const navigate = useNavigate();
+  const [step, setStep] = useState(0); // 0: Personal, 1: Experience, 2: Resume, 3: Summary
 
   // State
   const [projects, setProjects] = useState([]);
@@ -38,6 +41,42 @@ const Register = () => {
       if (resumePreviewUrl) URL.revokeObjectURL(resumePreviewUrl);
     };
   }, [resumePreviewUrl]);
+
+  // Step titles removed from UI as requested; we keep only numeric indicators
+
+  const validateStep = (currentStep) => {
+    const stepErrors = {};
+    if (currentStep === 0) {
+      if (!formData.firstName.trim()) stepErrors.firstName = 'First name is required';
+      if (!formData.lastName.trim()) stepErrors.lastName = 'Last name is required';
+      if (!formData.email.trim()) stepErrors.email = 'Email is required';
+      if (!/\S+@\S+\.\S+/.test(formData.email)) stepErrors.email = 'Email is invalid';
+      if (!formData.age) stepErrors.age = 'Age is required';
+      else if (parseInt(formData.age) < 18) stepErrors.age = 'Age must be at least 18';
+      if (!formData.degree.trim()) stepErrors.degree = 'Degree is required';
+      if (!formData.projectAppliedFor) stepErrors.projectAppliedFor = 'Please select a project';
+    } else if (currentStep === 1) {
+      if (!formData.relevantExperience.trim()) stepErrors.relevantExperience = 'Relevant experience is required';
+    } else if (currentStep === 2) {
+      if (!formData.resume) stepErrors.resume = 'Resume is required';
+    } else if (currentStep === 3) {
+      // Summary step - nothing additional to validate
+    }
+    setErrors((prev) => ({ ...prev, ...stepErrors }));
+    return Object.keys(stepErrors).length === 0;
+  };
+
+  const handleNext = (e) => {
+    e.preventDefault();
+    if (validateStep(step)) {
+      setStep((s) => Math.min(3, s + 1));
+    }
+  };
+
+  const handleBack = (e) => {
+    e.preventDefault();
+    setStep((s) => Math.max(0, s - 1));
+  };
 
   // Fetch projects on mount
   useEffect(() => {
@@ -92,41 +131,91 @@ const Register = () => {
     marginBottom: SPACING.LG,
   };
 
-  // Subtitle removed
-
-  // Card-like header styles to mimic shadcn UI
-  const cardHeaderStyle = {
+  const subtitleStyle = {
+    ...TYPOGRAPHY.BODY,
+    color: '#6b7280',
     textAlign: 'center',
-    paddingBottom: SPACING.XL,
-    borderBottom: `1px solid rgba(4, 98, 65, 0.08)`,
+    marginTop: `-${SPACING.SM}`,
     marginBottom: SPACING.XL,
   };
 
-  const headerIconCircleStyle = {
-    width: '80px',
-    height: '80px',
-    borderRadius: '9999px',
-    backgroundColor: 'rgba(255, 179, 71, 0.20)', // saffron/20
+  const applicationContainerStyle = {
+    width: '100%',
+    maxWidth: '900px',
+    margin: '0 auto',
+    padding: isMobile ? SPACING.MD : SPACING.XL,
+    backgroundColor: 'transparent',
+    borderRadius: '16px',
+  };
+
+  const progressHeaderStyle = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: SPACING.MD,
+    color: COLORS.DARK_SERPENT,
+  };
+
+  const progressBarTrackStyle = {
+    width: '100%',
+    height: 6,
+    backgroundColor: 'rgba(0,0,0,0.08)',
+    borderRadius: 999,
+    overflow: 'hidden',
+    marginBottom: SPACING.XL,
+  };
+
+  const progressBarFillStyle = (pct) => ({
+    width: `${pct}%`,
+    height: '100%',
+    backgroundColor: COLORS.CASTLETON_GREEN,
+  });
+
+  // Stepper styles
+  const stepperStyle = {
+    display: 'grid',
+    gridTemplateColumns: 'auto 1fr auto 1fr auto',
+    alignItems: 'center',
+    columnGap: SPACING.MD,
+    width: '100%',
+    marginBottom: SPACING.XL,
+  };
+
+  const stepItemStyle = (active) => ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    margin: '0 auto',
-    marginBottom: SPACING.XL,
+    width: 36,
+    height: 36,
+    borderRadius: '50%',
+    border: `2px solid ${COLORS.CASTLETON_GREEN}`,
+    backgroundColor: active ? COLORS.CASTLETON_GREEN : 'transparent',
+    color: active ? COLORS.WHITE : COLORS.CASTLETON_GREEN,
+    fontWeight: 700,
+    transition: 'all 0.2s ease',
+  });
+
+  // removed stepLabelStyle (not used after simplified UI)
+
+  // removed numberBadgeStyle; step circles now rendered directly by stepItemStyle
+
+  const stepConnectorStyle = {
+    height: '2px',
+    width: '100%',
+    background: `linear-gradient(90deg, rgba(4,98,65,0.15), ${COLORS.CASTLETON_GREEN})`,
+    borderRadius: '2px',
   };
 
-  const headerTitleStyle = {
-    ...(isMobile ? TYPOGRAPHY.TITLE : TYPOGRAPHY.DISPLAY_SMALL),
-    color: COLORS.DARK_SERPENT,
-    textAlign: 'center',
-    marginBottom: SPACING.SM,
-  };
+  // Subtitle removed
+
+  // Header styles removed (unused)
 
   // headerDescriptionStyle removed (unused)
 
   const formStyle = {
     backgroundColor: COLORS.WHITE,
     padding: isMobile ? SPACING.LG : SPACING.XL,
-    borderRadius: '1px',
+    borderRadius: '16px',
     boxShadow: '0 12px 28px rgba(0,0,0,0.06)',
     marginBottom: SPACING.XL,
     border: `0.5px solid rgba(4, 98, 65, 0.12)`,
@@ -137,6 +226,38 @@ const Register = () => {
     display: 'flex',
     flexDirection: 'column',
     gap: SPACING.MD,
+  };
+
+  const summaryCardStyle = {
+    backgroundColor: COLORS.SEA_SALT,
+    border: `1px solid rgba(4, 98, 65, 0.12)`,
+    borderRadius: '12px',
+    padding: SPACING.XL,
+    marginBottom: SPACING.XL,
+  };
+
+  const summaryGridStyle = {
+    display: 'grid',
+    gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+    gap: SPACING.LG,
+  };
+
+  const summaryItemStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: SPACING.XS,
+  };
+
+  const summaryLabelStyle = {
+    ...TYPOGRAPHY.CAPTION,
+    color: COLORS.CASTLETON_GREEN,
+    fontWeight: 700,
+    letterSpacing: '0.3px',
+  };
+
+  const summaryValueStyle = {
+    ...TYPOGRAPHY.BODY,
+    color: COLORS.DARK_SERPENT,
   };
 
   const labelStyle = {
@@ -192,9 +313,54 @@ const Register = () => {
     borderRadius: '12px',
     cursor: 'pointer',
     transition: 'all 0.3s ease',
-    width: '100%',
+    minHeight: 48,
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
     marginTop: SPACING.LG,
     boxShadow: '0 4px 12px rgba(255, 179, 71, 0.3)',
+  };
+
+  const primaryNavButtonStyle = {
+    ...TYPOGRAPHY.BUTTON,
+    backgroundColor: COLORS.SAFFRON,
+    color: COLORS.DARK_SERPENT,
+    padding: `${SPACING.MD} ${SPACING.XL}`,
+    border: 'none',
+    borderRadius: '12px',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    minHeight: 48,
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+    boxShadow: '0 4px 12px rgba(255, 179, 71, 0.3)',
+  };
+
+  const navButtonsRowStyle = {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'stretch',
+    gap: SPACING.MD,
+    marginTop: SPACING.XL,
+  };
+
+  const secondaryButtonStyle = {
+    ...TYPOGRAPHY.BUTTON,
+    backgroundColor: 'transparent',
+    color: COLORS.CASTLETON_GREEN,
+    padding: `${SPACING.MD} ${SPACING.XL}`,
+    border: `2px solid ${COLORS.CASTLETON_GREEN}`,
+    borderRadius: '12px',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    minHeight: 48,
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
   };
 
   const bannerBase = {
@@ -316,42 +482,53 @@ const Register = () => {
     setLoading(true);
 
     try {
-      const formDataToSend = new FormData();
-      Object.keys(formData).forEach((key) => {
-        if (key === 'resume' && formData[key]) {
-          formDataToSend.append('resume', formData[key]);
-        } else if (formData[key] !== null) {
-          formDataToSend.append(key, formData[key]);
-        }
-      });
-
-      const response = await applicantAPI.create(formDataToSend, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-
-      if (response.status === 201) {
-        setSubmitStatus('success');
-        // Show popup alert instead of inline banner
-        window.alert("Application submitted successfully! We'll be in touch soon.");
-        setFormData({
-          firstName: '',
-          lastName: '',
-          age: '',
-          degree: '',
-          relevantExperience: '',
-          email: '',
-          projectAppliedFor: '',
-          resume: null,
-        });
-        if (resumePreviewUrl) URL.revokeObjectURL(resumePreviewUrl);
-        setResumePreviewUrl('');
-        setResumePreviewType('');
-      } else {
-        throw new Error('Failed to submit application');
+      // Backend expects multipart/form-data on POST /api/applicants with @RequestParam fields
+      const fd = new FormData();
+      fd.append('firstName', formData.firstName);
+      fd.append('lastName', formData.lastName);
+      fd.append('age', String(parseInt(formData.age, 10)));
+      fd.append('degree', formData.degree);
+      fd.append('relevantExperience', formData.relevantExperience);
+      fd.append('email', formData.email);
+      fd.append('projectAppliedFor', formData.projectAppliedFor);
+      if (formData.resume) {
+        fd.append('resume', formData.resume);
       }
+
+      const createResp = await applicantAPI.create(fd);
+      if (createResp.status !== 201) {
+        throw new Error('Unexpected response from server');
+      }
+
+      setSubmitStatus('success');
+      window.alert("Application submitted successfully! We'll be in touch soon.");
+      setFormData({
+        firstName: '',
+        lastName: '',
+        age: '',
+        degree: '',
+        relevantExperience: '',
+        email: '',
+        projectAppliedFor: '',
+        resume: null,
+      });
+      if (resumePreviewUrl) URL.revokeObjectURL(resumePreviewUrl);
+      setResumePreviewUrl('');
+      setResumePreviewType('');
+      navigate('/');
     } catch (error) {
       console.error('Error submitting application:', error);
-      setSubmitStatus('error');
+      const status = error?.response?.status;
+      const apiMessage = error?.response?.data || error?.message || 'Submission failed';
+      // Allow reapply when email already exists (backend may return 400/409)
+      if (status === 400 || status === 409) {
+        window.alert("We already have an application with this email. Your new application has been noted.");
+        navigate('/');
+        setSubmitStatus('success');
+      } else {
+        setErrors((prev) => ({ ...prev, submit: apiMessage }));
+        setSubmitStatus('error');
+      }
     } finally {
       setLoading(false);
     }
@@ -375,16 +552,38 @@ const Register = () => {
             margin: '0 auto',
           }}
         >
-          <h1 style={titleStyle}>Application Form</h1>
+          <div style={applicationContainerStyle}>
+          <h1 style={titleStyle}>{LABELS.REGISTER_TITLE}</h1>
+          <div style={subtitleStyle}>{LABELS.REGISTER_SUBTITLE}</div>
+
+          {/* Progress header */}
+          <div style={progressHeaderStyle}>
+            <div>
+              {LABELS.STEP_OF} {step + 1} {LABELS.OF} 4
+            </div>
+            <div>
+              {Math.round(((step + 1) / 4) * 100)}% {LABELS.COMPLETE_SUFFIX}
+            </div>
+          </div>
+          <div style={progressBarTrackStyle}>
+            <div style={progressBarFillStyle(Math.round(((step + 1) / 4) * 100))} />
+          </div>
 
           <form style={formStyle} onSubmit={handleSubmit}>
-            {/* Minimal header */}
-            <div style={cardHeaderStyle}>
-              <div style={headerIconCircleStyle}>
-                <span style={{ fontSize: '28px' }}>👤</span>
-              </div>
-              <div style={headerTitleStyle}>Tell us about yourself</div>
+            {/* Stepper - numbered circles only */}
+            <div style={{
+              ...stepperStyle,
+              gridTemplateColumns: 'auto 1fr auto 1fr auto 1fr auto',
+            }}>
+              <div style={stepItemStyle(step === 0)}>1</div>
+              <div style={stepConnectorStyle} />
+              <div style={stepItemStyle(step === 1)}>2</div>
+              <div style={stepConnectorStyle} />
+              <div style={stepItemStyle(step === 2)}>3</div>
+              <div style={stepConnectorStyle} />
+              <div style={stepItemStyle(step === 3)}>4</div>
             </div>
+
             {/* Success alert shown via window.alert; inline success banner removed */}
 
             {(submitStatus === 'error' || errors.submit) && (
@@ -396,275 +595,344 @@ const Register = () => {
               </div>
             )}
 
-            {/* Row 1: First name / Last name */}
-            <div
-              style={
-                isMobile
-                  ? { marginBottom: SPACING.XL }
-                  : {
-                      display: 'grid',
-                      gridTemplateColumns: '1fr 1fr',
-                      gap: SPACING.MD,
-                      marginBottom: SPACING.LG,
-                    }
-              }
-            >
-              <div style={{ display: 'flex', flexDirection: 'column', gap: SPACING.SM }}>
-                <label htmlFor="firstName" style={labelStyle}>
-                  First name *
-                </label>
-                <input
-                  style={getFocusedInputStyle('firstName')}
-                  type="text"
-                  id="firstName"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleInputChange}
-                  onFocus={() => setFocusedField('firstName')}
-                  onBlur={() => setFocusedField('')}
-                  required
-                />
-                {errors.firstName && <div style={errorStyle}>{errors.firstName}</div>}
+            {/* Step 3: Summary */}
+            {step === 3 && (
+              <div style={formGroupStyle}>
+                <div style={summaryCardStyle}>
+                  <div style={{ ...(isMobile ? TYPOGRAPHY.SUBHEADLINE : TYPOGRAPHY.HEADLINE), color: COLORS.DARK_SERPENT, marginBottom: SPACING.MD }}>
+                    {LABELS.REVIEW_DETAILS}
+                  </div>
+                  <div style={summaryGridStyle}>
+                    <div style={summaryItemStyle}>
+                      <span style={summaryLabelStyle}>{LABELS.FIRST_NAME}</span>
+                      <span style={summaryValueStyle}>{formData.firstName || '-'}</span>
+                    </div>
+                    <div style={summaryItemStyle}>
+                      <span style={summaryLabelStyle}>{LABELS.LAST_NAME}</span>
+                      <span style={summaryValueStyle}>{formData.lastName || '-'}</span>
+                    </div>
+                    <div style={summaryItemStyle}>
+                      <span style={summaryLabelStyle}>{LABELS.EMAIL_ADDRESS}</span>
+                      <span style={summaryValueStyle}>{formData.email || '-'}</span>
+                    </div>
+                    <div style={summaryItemStyle}>
+                      <span style={summaryLabelStyle}>{LABELS.AGE}</span>
+                      <span style={summaryValueStyle}>{formData.age || '-'}</span>
+                    </div>
+                    <div style={summaryItemStyle}>
+                      <span style={summaryLabelStyle}>{LABELS.DEGREE}</span>
+                      <span style={summaryValueStyle}>{formData.degree || '-'}</span>
+                    </div>
+                    <div style={summaryItemStyle}>
+                      <span style={summaryLabelStyle}>{LABELS.PROJECT}</span>
+                      <span style={summaryValueStyle}>{formData.projectAppliedFor || '-'}</span>
+                    </div>
+                    <div style={{ gridColumn: isMobile ? 'auto' : '1 / -1', ...summaryItemStyle }}>
+                      <span style={summaryLabelStyle}>{LABELS.EXPERIENCE_LABEL}</span>
+                      <span style={summaryValueStyle}>{formData.relevantExperience || '-'}</span>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: SPACING.SM }}>
-                <label htmlFor="lastName" style={labelStyle}>
-                  Last name *
-                </label>
-                <input
-                  style={getFocusedInputStyle('lastName')}
-                  type="text"
-                  id="lastName"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleInputChange}
-                  onFocus={() => setFocusedField('lastName')}
-                  onBlur={() => setFocusedField('')}
-                  required
-                />
-                {errors.lastName && <div style={errorStyle}>{errors.lastName}</div>}
-              </div>
-            </div>
+            )}
 
-            {/* Row 2: Email / Age */}
-            <div
-              style={
-                isMobile
-                  ? { marginBottom: SPACING.LG }
-                  : {
-                      display: 'grid',
-                      gridTemplateColumns: '1fr 1fr',
-                      gap: SPACING.MD,
-                      marginBottom: SPACING.LG,
-                    }
-              }
-            >
-              <div style={{ display: 'flex', flexDirection: 'column', gap: SPACING.SM }}>
-                <label htmlFor="email" style={labelStyle}>
-                  Email address *
-                </label>
-                <input
-                  style={getFocusedInputStyle('email')}
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  onFocus={() => setFocusedField('email')}
-                  onBlur={() => setFocusedField('')}
-                  placeholder="your.email@example.com"
-                  required
-                />
-                {errors.email && <div style={errorStyle}>{errors.email}</div>}
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: SPACING.SM }}>
-                <label htmlFor="age" style={labelStyle}>
-                  Age *
-                </label>
-                <input
-                  style={getFocusedInputStyle('age')}
-                  type="number"
-                  id="age"
-                  name="age"
-                  value={formData.age}
-                  onChange={handleInputChange}
-                  onFocus={() => setFocusedField('age')}
-                  onBlur={() => setFocusedField('')}
-                  min="18"
-                  max="100"
-                  required
-                />
-                {errors.age && <div style={errorStyle}>{errors.age}</div>}
-              </div>
-            </div>
-
-            {/* Row 3: Degree / Select Project */}
-            <div
-              style={
-                isMobile
-                  ? { marginBottom: SPACING.LG }
-                  : {
-                      display: 'grid',
-                      gridTemplateColumns: '1fr 1fr',
-                      gap: SPACING.MD,
-                      marginBottom: SPACING.LG,
-                    }
-              }
-            >
-              <div style={{ display: 'flex', flexDirection: 'column', gap: SPACING.SM }}>
-                <label htmlFor="degree" style={labelStyle}>
-                  Degree *
-                </label>
-                <input
-                  style={getFocusedInputStyle('degree')}
-                  type="text"
-                  id="degree"
-                  name="degree"
-                  value={formData.degree}
-                  onChange={handleInputChange}
-                  onFocus={() => setFocusedField('degree')}
-                  onBlur={() => setFocusedField('')}
-                  placeholder="e.g., Bachelor of Computer Science"
-                  required
-                />
-                {errors.degree && <div style={errorStyle}>{errors.degree}</div>}
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: SPACING.SM }}>
-                <label htmlFor="projectAppliedFor" style={labelStyle}>
-                  Select Project *
-                </label>
-                <select
-                  style={{
-                    ...getFocusedInputStyle('projectAppliedFor'),
-                    cursor: 'pointer',
-                    appearance: 'none',
-                    backgroundImage:
-                      'url("data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' viewBox=\'0 0 20 20\' fill=\'none\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M5 7l5 5 5-5\' stroke=\'%236b7280\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'/%3E%3C/svg%3E%27")',
-                    backgroundRepeat: 'no-repeat',
-                    backgroundPosition: 'right 12px center',
-                    paddingRight: '48px',
-                  }}
-                  id="projectAppliedFor"
-                  name="projectAppliedFor"
-                  value={formData.projectAppliedFor}
-                  onChange={handleInputChange}
-                  onFocus={() => setFocusedField('projectAppliedFor')}
-                  onBlur={() => setFocusedField('')}
-                  required
+            {/* Step 0: Personal Information */}
+            {step === 0 && (
+              <>
+                <div
+                  style={
+                    isMobile
+                      ? { marginBottom: SPACING.XL }
+                      : {
+                          display: 'grid',
+                          gridTemplateColumns: '1fr 1fr',
+                          gap: SPACING.MD,
+                          marginBottom: SPACING.LG,
+                        }
+                  }
                 >
-                  <option value="">-- Select a project --</option>
-                  {projects.map((project, index) => (
-                    <option
-                      key={index}
-                      value={typeof project === 'string' ? project : project.title}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: SPACING.SM }}>
+                    <label htmlFor="firstName" style={labelStyle}>
+                      First name *
+                    </label>
+                    <input
+                      style={getFocusedInputStyle('firstName')}
+                      type="text"
+                      id="firstName"
+                      name="firstName"
+                      value={formData.firstName}
+                      onChange={handleInputChange}
+                      onFocus={() => setFocusedField('firstName')}
+                      onBlur={() => setFocusedField('')}
+                      required
+                    />
+                    {errors.firstName && <div style={errorStyle}>{errors.firstName}</div>}
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: SPACING.SM }}>
+                    <label htmlFor="lastName" style={labelStyle}>
+                      Last name *
+                    </label>
+                    <input
+                      style={getFocusedInputStyle('lastName')}
+                      type="text"
+                      id="lastName"
+                      name="lastName"
+                      value={formData.lastName}
+                      onChange={handleInputChange}
+                      onFocus={() => setFocusedField('lastName')}
+                      onBlur={() => setFocusedField('')}
+                      required
+                    />
+                    {errors.lastName && <div style={errorStyle}>{errors.lastName}</div>}
+                  </div>
+                </div>
+
+                <div
+                  style={
+                    isMobile
+                      ? { marginBottom: SPACING.LG }
+                      : {
+                          display: 'grid',
+                          gridTemplateColumns: '1fr 1fr',
+                          gap: SPACING.MD,
+                          marginBottom: SPACING.LG,
+                        }
+                  }
+                >
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: SPACING.SM }}>
+                    <label htmlFor="email" style={labelStyle}>
+                      Email address *
+                    </label>
+                    <input
+                      style={getFocusedInputStyle('email')}
+                      type="email"
+                      id="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      onFocus={() => setFocusedField('email')}
+                      onBlur={() => setFocusedField('')}
+                      placeholder="your.email@example.com"
+                      required
+                    />
+                    {errors.email && <div style={errorStyle}>{errors.email}</div>}
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: SPACING.SM }}>
+                    <label htmlFor="age" style={labelStyle}>
+                      Age *
+                    </label>
+                    <input
+                      style={getFocusedInputStyle('age')}
+                      type="number"
+                      id="age"
+                      name="age"
+                      value={formData.age}
+                      onChange={handleInputChange}
+                      onFocus={() => setFocusedField('age')}
+                      onBlur={() => setFocusedField('')}
+                      min="18"
+                      max="100"
+                      required
+                    />
+                    {errors.age && <div style={errorStyle}>{errors.age}</div>}
+                  </div>
+                </div>
+
+                <div
+                  style={
+                    isMobile
+                      ? { marginBottom: SPACING.LG }
+                      : {
+                          display: 'grid',
+                          gridTemplateColumns: '1fr 1fr',
+                          gap: SPACING.MD,
+                          marginBottom: SPACING.LG,
+                        }
+                  }
+                >
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: SPACING.SM }}>
+                    <label htmlFor="degree" style={labelStyle}>
+                      Degree *
+                    </label>
+                    <input
+                      style={getFocusedInputStyle('degree')}
+                      type="text"
+                      id="degree"
+                      name="degree"
+                      value={formData.degree}
+                      onChange={handleInputChange}
+                      onFocus={() => setFocusedField('degree')}
+                      onBlur={() => setFocusedField('')}
+                      placeholder="e.g., Bachelor of Computer Science"
+                      required
+                    />
+                    {errors.degree && <div style={errorStyle}>{errors.degree}</div>}
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: SPACING.SM }}>
+                    <label htmlFor="projectAppliedFor" style={labelStyle}>
+                      Select Project *
+                    </label>
+                    <select
+                      style={{
+                        ...getFocusedInputStyle('projectAppliedFor'),
+                        cursor: 'pointer',
+                        appearance: 'none',
+                        backgroundImage:
+                          'url("data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' viewBox=\'0 0 20 20\' fill=\'none\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M5 7l5 5 5-5\' stroke=\'%236b7280\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'/%3E%3C/svg%3E%27")',
+                        backgroundRepeat: 'no-repeat',
+                        backgroundPosition: 'right 12px center',
+                        paddingRight: '48px',
+                      }}
+                      id="projectAppliedFor"
+                      name="projectAppliedFor"
+                      value={formData.projectAppliedFor}
+                      onChange={handleInputChange}
+                      onFocus={() => setFocusedField('projectAppliedFor')}
+                      onBlur={() => setFocusedField('')}
+                      required
                     >
-                      {typeof project === 'string' ? project : project.title}
-                    </option>
-                  ))}
-                </select>
-                {errors.projectAppliedFor && (
-                  <div style={errorStyle}>{errors.projectAppliedFor}</div>
+                      <option value="">-- Select a project --</option>
+                      {projects.map((project, index) => (
+                        <option
+                          key={index}
+                          value={typeof project === 'string' ? project : project.title}
+                        >
+                          {typeof project === 'string' ? project : project.title}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.projectAppliedFor && (
+                      <div style={errorStyle}>{errors.projectAppliedFor}</div>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Step 1: Experience */}
+            {step === 1 && (
+              <div style={formGroupStyle}>
+                <label htmlFor="relevantExperience" style={labelStyle}>
+                  Relevant Experience *
+                </label>
+                <textarea
+                  style={{
+                    ...getFocusedInputStyle('relevantExperience'),
+                    minHeight: '160px',
+                    resize: 'vertical',
+                    lineHeight: '1.6',
+                  }}
+                  id="relevantExperience"
+                  name="relevantExperience"
+                  value={formData.relevantExperience}
+                  onChange={handleInputChange}
+                  onFocus={() => setFocusedField('relevantExperience')}
+                  onBlur={() => setFocusedField('')}
+                  placeholder="Describe your relevant experience and skills..."
+                  required
+                />
+                {errors.relevantExperience && <div style={errorStyle}>{errors.relevantExperience}</div>}
+              </div>
+            )}
+
+            {/* Step 2: Resume */}
+            {step === 2 && (
+              <div style={formGroupStyle}>
+                {/* Resume (upload and preview) */}
+                <label style={labelStyle}>
+                  Resume (PDF or Word) *
+                </label>
+                <input
+                  type="file"
+                  id="resume"
+                  name="resume"
+                  onChange={handleInputChange}
+                  accept=".pdf,.doc,.docx"
+                  style={{ display: 'none' }}
+                />
+                <div style={{ display: 'flex', alignItems: 'center', gap: SPACING.MD }}>
+                  <button
+                    type="button"
+                    onClick={() => document.getElementById('resume').click()}
+                    style={{
+                      ...inputStyle,
+                      width: 'auto',
+                      backgroundColor: COLORS.CASTLETON_GREEN,
+                      color: COLORS.WHITE,
+                      cursor: 'pointer',
+                      border: `1.5px solid ${COLORS.CASTLETON_GREEN}`,
+                    }}
+                  >
+                    Choose File
+                  </button>
+                  <span style={{ ...TYPOGRAPHY.CAPTION, color: '#6b7280', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {formData.resume ? formData.resume.name : 'No file selected'}
+                  </span>
+                </div>
+                <div style={{ ...TYPOGRAPHY.CAPTION, color: COLORS.GRAY, marginTop: SPACING.SM }}>
+                  Accepted file types: .pdf, .doc, .docx (max 5MB)
+                </div>
+                {errors.resume && <div style={errorStyle}>{errors.resume}</div>}
+                {resumePreviewType === 'pdf' && resumePreviewUrl && (
+                  <div style={{ marginTop: SPACING.MD }}>
+                    <div style={{ ...TYPOGRAPHY.CAPTION, color: COLORS.DARK_SERPENT, marginBottom: SPACING.SM }}>
+                      Preview (PDF):
+                    </div>
+                    <div style={{ border: `1px solid ${COLORS.LIGHT_GRAY}`, borderRadius: '8px', overflow: 'hidden', height: '360px', background: COLORS.WHITE }}>
+                      <iframe
+                        src={resumePreviewUrl}
+                        title="Resume Preview"
+                        style={{ width: '100%', height: '100%', border: 'none' }}
+                      />
+                    </div>
+                  </div>
+                )}
+                {resumePreviewType === 'doc' && (
+                  <div style={{ ...TYPOGRAPHY.CAPTION, color: '#6b7280', marginTop: SPACING.SM }}>
+                    Preview not available for Word documents. You can still submit; the admin will be able to download and view it.
+                  </div>
                 )}
               </div>
-            </div>
+            )}
 
-            {/* Row 4: Relevant Experience */}
-            <div style={formGroupStyle}>
-              <label htmlFor="relevantExperience" style={labelStyle}>
-                Relevant Experience *
-              </label>
-              <textarea
-                style={{
-                  ...getFocusedInputStyle('relevantExperience'),
-                  minHeight: '120px',
-                  resize: 'vertical',
-                  lineHeight: '1.5',
-                }}
-                id="relevantExperience"
-                name="relevantExperience"
-                value={formData.relevantExperience}
-                onChange={handleInputChange}
-                onFocus={() => setFocusedField('relevantExperience')}
-                onBlur={() => setFocusedField('')}
-                placeholder="Describe your relevant experience and skills..."
-                required
-              />
-              {errors.relevantExperience && <div style={errorStyle}>{errors.relevantExperience}</div>}
-            </div>
-
-            {/* Resume */}
-            <div style={formGroupStyle}>
-              <label style={labelStyle}>
-                Resume (PDF or Word) *
-              </label>
-              <input
-                type="file"
-                id="resume"
-                name="resume"
-                onChange={handleInputChange}
-                accept=".pdf,.doc,.docx"
-                style={{ display: 'none' }}
-              />
-              <div style={{ display: 'flex', alignItems: 'center', gap: SPACING.MD }}>
+            {/* Navigation */}
+            <div style={navButtonsRowStyle}>
+              <button
+                type="button"
+                onClick={handleBack}
+                style={secondaryButtonStyle}
+                disabled={step === 0}
+              >
+                {LABELS.BACK}
+              </button>
+              {step < 3 ? (
                 <button
                   type="button"
-                  onClick={() => document.getElementById('resume').click()}
-                  style={{
-                    ...inputStyle,
-                    width: 'auto',
-                    backgroundColor: COLORS.CASTLETON_GREEN,
-                    color: COLORS.WHITE,
-                    cursor: 'pointer',
-                    border: `1.5px solid ${COLORS.CASTLETON_GREEN}`,
-                  }}
+                  onClick={handleNext}
+                  style={primaryNavButtonStyle}
                 >
-                  Choose File
+                  {LABELS.NEXT}
                 </button>
-                <span style={{ ...TYPOGRAPHY.CAPTION, color: '#6b7280', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {formData.resume ? formData.resume.name : 'No file selected'}
-                </span>
-              </div>
-              <div style={{ ...TYPOGRAPHY.CAPTION, color: COLORS.GRAY, marginTop: SPACING.SM }}>
-                Accepted file types: .pdf, .doc, .docx (max 5MB)
-              </div>
-              {errors.resume && <div style={errorStyle}>{errors.resume}</div>}
-              {/* Local preview UI */}
-              {resumePreviewType === 'pdf' && resumePreviewUrl && (
-                <div style={{ marginTop: SPACING.MD }}>
-                  <div style={{ ...TYPOGRAPHY.CAPTION, color: COLORS.DARK_SERPENT, marginBottom: SPACING.SM }}>
-                    Preview (PDF):
-                  </div>
-                  <div style={{ border: `1px solid ${COLORS.LIGHT_GRAY}`, borderRadius: '8px', overflow: 'hidden', height: '360px', background: COLORS.WHITE }}>
-                    <iframe
-                      src={resumePreviewUrl}
-                      title="Resume Preview"
-                      style={{ width: '100%', height: '100%', border: 'none' }}
-                    />
-                  </div>
-                </div>
-              )}
-              {resumePreviewType === 'doc' && (
-                <div style={{ ...TYPOGRAPHY.CAPTION, color: '#6b7280', marginTop: SPACING.SM }}>
-                  Preview not available for Word documents. You can still submit; the admin will be able to download and view it.
-                </div>
+              ) : (
+                <button
+                  type="submit"
+                  style={{
+                    ...submitButtonStyle,
+                    transform: buttonHover ? 'translateY(-2px) scale(1.02)' : 'none',
+                    opacity: loading ? 0.7 : 1,
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                    marginTop: 0,
+                  }}
+                  disabled={loading}
+                  onMouseEnter={() => setButtonHover(true)}
+                  onMouseLeave={() => setButtonHover(false)}
+                >
+                  {LABELS.SUBMIT}
+                </button>
               )}
             </div>
-
-            {/* Submit */}
-            <button
-              type="submit"
-              style={{
-                ...submitButtonStyle,
-                transform: buttonHover ? 'translateY(-2px) scale(1.02)' : 'none',
-                opacity: loading ? 0.7 : 1,
-                cursor: loading ? 'not-allowed' : 'pointer',
-              }}
-              disabled={loading}
-              onMouseEnter={() => setButtonHover(true)}
-              onMouseLeave={() => setButtonHover(false)}
-            >
-              {loading ? 'Submitting...' : 'Submit Application'}
-            </button>
           </form>
+          </div>
         </div>
       </Container>
     </div>

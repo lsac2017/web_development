@@ -48,7 +48,7 @@ const AdminDashboard = () => {
     // Check if user is authenticated
     const token = localStorage.getItem('adminToken');
     if (!token) {
-      navigate('/login');
+      navigate('/admin/login');
       return;
     }
     
@@ -67,11 +67,42 @@ const AdminDashboard = () => {
     }
   };
 
+  // Create/Update/Delete helpers
+  const editApplicant = (applicant) => {
+    setEditingApplicant(applicant);
+    setShowAddForm(true);
+    setFormData({
+      firstName: applicant.firstName || '',
+      lastName: applicant.lastName || '',
+      degree: applicant.degree || '',
+      relevantExperience: applicant.relevantExperience || '',
+      email: applicant.email || '',
+      projectAppliedFor: applicant.projectAppliedFor || ''
+    });
+  };
+
+  const deleteApplicant = async (id) => {
+    if (isProcessing) return;
+    const ok = window.confirm('Delete this application? This action cannot be undone.');
+    if (!ok) return;
+    setIsProcessing(true);
+    try {
+      await applicantAPI.delete(id);
+      setApplicants(prev => prev.filter(a => a.id !== id));
+      toast.success('Application deleted', { position: 'top-right', autoClose: 2500 });
+    } catch (error) {
+      console.error('Delete failed:', error);
+      toast.error('Failed to delete application', { position: 'top-right', autoClose: 3000 });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   // -------- Utility Actions --------
   const handleLogout = () => {
     localStorage.removeItem('adminToken');
     toast.success('Logged out successfully', { position: 'top-right', autoClose: 2000 });
-    navigate('/login');
+    navigate('/admin/login');
   };
 
   const exportCSV = () => {
@@ -128,50 +159,50 @@ const AdminDashboard = () => {
 
   const statCardStyle = {
     backgroundColor: COLORS.WHITE,
-    padding: SPACING.XL,
-    borderRadius: '0',
-    boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
+    padding: SPACING.LG,
+    borderRadius: '12px',
+    boxShadow: '0 6px 16px rgba(0,0,0,0.06)',
     textAlign: 'center',
-    border: '1px solid rgba(4, 98, 65, 0.1)',
+    border: '1px solid rgba(4, 98, 65, 0.08)',
   };
 
   const headerStyle = {
     ...(isMobile ? TYPOGRAPHY.DISPLAY_MOBILE : TYPOGRAPHY.DISPLAY),
     color: COLORS.DARK_SERPENT,
-    marginBottom: SPACING.XXL,
-    textAlign: 'center',
+    marginBottom: SPACING.LG,
+    textAlign: isMobile ? 'center' : 'left',
   };
 
   const statsContainerStyle = {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-    gap: SPACING.LG,
-    marginBottom: SPACING.XXL,
+    gap: SPACING.MD,
+    marginBottom: SPACING.XL,
   };
 
   const controlsStyle = {
     display: 'grid',
     gridTemplateColumns: isMobile ? '1fr' : isTablet ? '1fr 1fr' : '1fr 1fr 1fr',
     gap: SPACING.MD,
-    marginBottom: SPACING.XXL,
+    marginBottom: SPACING.XL,
     alignItems: 'center',
     backgroundColor: COLORS.WHITE,
-    padding: SPACING.LG,
-    borderRadius: '0',
-    boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+    padding: SPACING.MD,
+    borderRadius: '12px',
+    boxShadow: '0 3px 10px rgba(0,0,0,0.05)',
   };
 
   const searchInputStyle = {
     padding: `${SPACING.MD} ${SPACING.LG}`,
-    border: `2px solid ${COLORS.LIGHT_GRAY}`,
-    borderRadius: '0',
+    border: `1px solid ${COLORS.LIGHT_GRAY}`,
+    borderRadius: '8px',
     ...TYPOGRAPHY.BODY,
     transition: 'all 0.3s ease',
     width: '100%',
     ':focus': {
       borderColor: COLORS.CASTLETON_GREEN,
       outline: 'none',
-      boxShadow: `0 0 0 2px ${COLORS.CASTLETON_GREEN}20`,
+      boxShadow: `0 0 0 3px ${COLORS.CASTLETON_GREEN}20`,
     },
   };
 
@@ -181,7 +212,7 @@ const AdminDashboard = () => {
     color: COLORS.DARK_SERPENT,
     padding: `${SPACING.MD} ${SPACING.XL}`,
     border: 'none',
-    borderRadius: '0',
+    borderRadius: '10px',
     cursor: 'pointer',
     transition: 'all 0.3s ease',
     display: 'inline-flex',
@@ -205,20 +236,22 @@ const AdminDashboard = () => {
     borderCollapse: 'separate',
     borderSpacing: 0,
     backgroundColor: COLORS.WHITE,
-    borderRadius: '0',
+    borderRadius: '12px',
     overflow: 'hidden',
-    boxShadow: '0 6px 24px rgba(0,0,0,0.06)',
-    border: `2px solid ${COLORS.LIGHT_GRAY}`,
-    marginBottom: SPACING.XXL,
+    boxShadow: '0 6px 18px rgba(0,0,0,0.05)',
+    border: `1px solid ${COLORS.LIGHT_GRAY}`,
+    marginBottom: SPACING.XL,
   };
 
   const thStyle = {
     ...TYPOGRAPHY.SUBHEADLINE,
     backgroundColor: COLORS.CASTLETON_GREEN,
     color: COLORS.WHITE,
-    padding: `${SPACING.MD} ${SPACING.LG}`,
+    padding: `${SPACING.SM} ${SPACING.LG}`,
     textAlign: 'left',
     fontWeight: '600',
+    fontSize: '0.9rem',
+    lineHeight: 1.2,
     position: 'sticky',
     top: 0,
     zIndex: 10,
@@ -227,7 +260,7 @@ const AdminDashboard = () => {
 
   const tdStyle = {
     ...TYPOGRAPHY.BODY,
-    padding: `calc(${SPACING.MD} + 2px) ${SPACING.LG}`,
+    padding: `${SPACING.MD} ${SPACING.LG}`,
     borderBottom: `1px solid ${COLORS.LIGHT_GRAY}`,
     borderRight: `1px solid ${COLORS.LIGHT_GRAY}`,
     color: COLORS.DARK_SERPENT,
@@ -235,7 +268,8 @@ const AdminDashboard = () => {
     transition: 'background-color 0.2s ease',
     whiteSpace: 'normal',
     wordBreak: 'break-word',
-    lineHeight: 1.4,
+    fontSize: '0.95rem',
+    lineHeight: 1.35,
     ':hover': {
       backgroundColor: 'rgba(4, 98, 65, 0.03)',
     },
@@ -244,14 +278,16 @@ const AdminDashboard = () => {
   const actionButtonStyle = {
     padding: '0.5rem 1rem',
     border: 'none',
-    borderRadius: '0',
-    fontSize: '0.875rem',
+    borderRadius: '8px',
+    fontSize: '0.85rem',
     fontWeight: '600',
     cursor: 'pointer',
-    marginRight: '0.5rem',
-    marginBottom: '0.5rem',
+    marginRight: '0.25rem',
+    marginBottom: '0.25rem',
     display: 'inline-flex',
     alignItems: 'center',
+    lineHeight: 1,
+    boxSizing: 'border-box',
     gap: '0.5rem',
     transition: 'all 0.2s ease',
     ':hover': {
@@ -266,34 +302,35 @@ const AdminDashboard = () => {
 
   // Uniform size for action buttons to ensure consistent width/height across Approve, Decline, View, Download
   const uniformActionSize = {
-    width: '120px',
-    height: '40px',
-    borderRadius: '0',
-    fontSize: '0.85rem',
+    minWidth: '110px',
+    minHeight: '36px',
+    borderRadius: '8px',
+    fontSize: '0.82rem',
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
+    boxSizing: 'border-box',
   };
 
   const approveButtonStyle = {
     ...actionButtonStyle,
-    backgroundColor: 'rgba(4, 98, 65, 0.12)',
+    backgroundColor: 'rgba(4, 98, 65, 0.08)',
     color: COLORS.CASTLETON_GREEN,
-    border: `2px solid ${COLORS.CASTLETON_GREEN}`,
+    border: `1px solid rgba(4, 98, 65, 0.35)`,
     ':hover': {
-      backgroundColor: 'rgba(4, 98, 65, 0.18)',
-      boxShadow: '0 2px 8px rgba(4, 98, 65, 0.2)',
+      backgroundColor: 'rgba(4, 98, 65, 0.14)',
+      boxShadow: '0 1px 6px rgba(4, 98, 65, 0.2)',
     },
   };
 
   const rejectButtonStyle = {
     ...actionButtonStyle,
-    backgroundColor: 'rgba(220, 53, 69, 0.12)',
+    backgroundColor: 'rgba(220, 53, 69, 0.08)',
     color: COLORS.ERROR,
-    border: '2px solid rgba(220, 53, 69, 1)',
+    border: '1px solid rgba(220, 53, 69, 0.45)',
     ':hover': {
-      backgroundColor: 'rgba(220, 53, 69, 0.18)',
-      boxShadow: '0 2px 8px rgba(220, 53, 69, 0.2)',
+      backgroundColor: 'rgba(220, 53, 69, 0.14)',
+      boxShadow: '0 1px 6px rgba(220, 53, 69, 0.2)',
     },
   };
 
@@ -320,15 +357,15 @@ const AdminDashboard = () => {
 
   const inputStyle = {
     padding: `${SPACING.MD} ${SPACING.LG}`,
-    border: `2px solid ${COLORS.LIGHT_GRAY}`,
-    borderRadius: '0',
+    border: `1px solid ${COLORS.LIGHT_GRAY}`,
+    borderRadius: '8px',
     ...TYPOGRAPHY.BODY,
     width: '100%',
     transition: 'all 0.3s ease',
     ':focus': {
       borderColor: COLORS.CASTLETON_GREEN,
       outline: 'none',
-      boxShadow: `0 0 0 2px ${COLORS.CASTLETON_GREEN}20`,
+      boxShadow: `0 0 0 3px ${COLORS.CASTLETON_GREEN}20`,
     },
     '::placeholder': {
       color: COLORS.GRAY,
@@ -454,7 +491,7 @@ const AdminDashboard = () => {
   const handleSave = async () => {
     try {
       if (editingApplicant) {
-        await applicantAPI.update(editingApplicant._id, formData);
+        await applicantAPI.update(editingApplicant.id, formData);
         toast.success('Applicant updated successfully', { position: 'top-right', autoClose: 3000 });
       } else {
         await applicantAPI.create(formData);
@@ -622,7 +659,18 @@ const AdminDashboard = () => {
         
         <div style={{ overflowX: 'auto', borderRadius: '0', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
         <table style={tableStyle}>
-          <colgroup><col style={{ width: '14%' }}/><col style={{ width: '18%' }}/><col style={{ width: '15%' }}/><col style={{ width: '12%' }}/><col style={{ width: '14%' }}/><col style={{ width: '9%' }}/><col style={{ width: '6%' }}/><col style={{ width: '7%' }}/><col style={{ width: '5%' }}/></colgroup>
+          {/* Adjusted widths: Degree +10%, redistributed from other columns */}
+          <colgroup>
+            <col style={{ width: '13%' }}/>
+            <col style={{ width: '15%' }}/>
+            <col style={{ width: '25%' }}/>{/* Degree */}
+            <col style={{ width: '9%' }}/>
+            <col style={{ width: '12%' }}/>
+            <col style={{ width: '8%' }}/>
+            <col style={{ width: '6%' }}/>
+            <col style={{ width: '7%' }}/>
+            <col style={{ width: '5%' }}/>
+          </colgroup>
           <thead>
             <tr>
               <th style={thStyle}>Full Name</th>
@@ -678,7 +726,7 @@ const AdminDashboard = () => {
                   </td>
                   
                   {/* Degree */}
-                  <td style={tdStyle}>
+                  <td style={{ ...tdStyle, minWidth: '180px' }}>
                     <div title={applicant.degree || ''} style={{ color: COLORS.DARK_SERPENT }}>
                       {applicant.degree || 'N/A'}
                     </div>
@@ -738,8 +786,15 @@ const AdminDashboard = () => {
                   </td>
                   
                   {/* Actions */}
-                  <td style={{ ...tdStyle, textAlign: 'center', minWidth: '160px' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+                  <td style={{ ...tdStyle, textAlign: 'center', minWidth: '220px' }}>
+                    <div style={{
+                      display: 'flex',
+                      flexDirection: isMobile ? 'column' : 'row',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexWrap: isMobile ? 'nowrap' : 'wrap',
+                      gap: isMobile ? '8px' : '6px'
+                    }}>
                       <button
                         style={{
                           ...approveButtonStyle,
@@ -762,20 +817,52 @@ const AdminDashboard = () => {
                       >
                         ✕ Decline
                       </button>
+                      <button
+                        style={{
+                          ...actionButtonStyle,
+                          ...uniformActionSize,
+                          backgroundColor: COLORS.WHITE,
+                          color: COLORS.CASTLETON_GREEN,
+                          border: `1px solid rgba(4, 98, 65, 0.35)`,
+                        }}
+                        onClick={() => editApplicant(applicant)}
+                        disabled={isProcessing}
+                      >
+                        ✎ Edit
+                      </button>
+                      <button
+                        style={{
+                          ...actionButtonStyle,
+                          ...uniformActionSize,
+                          backgroundColor: 'rgba(220, 53, 69, 0.08)',
+                          color: COLORS.ERROR,
+                          border: '1px solid rgba(220, 53, 69, 0.45)',
+                        }}
+                        onClick={() => deleteApplicant(applicant.id)}
+                        disabled={isProcessing}
+                      >
+                        🗑️ Delete
+                      </button>
                     </div>
                   </td>
 
                   {/* Resume File */}
-                  <td style={{ ...tdStyle, textAlign: 'center', minWidth: '160px' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+                  <td style={{ ...tdStyle, textAlign: 'center', minWidth: '200px' }}>
+                    <div style={{
+                      display: 'flex',
+                      flexDirection: isMobile ? 'column' : 'row',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: isMobile ? '8px' : '6px'
+                    }}>
                       <button
                         onClick={() => openResume(applicant)}
                         style={{
                           ...actionButtonStyle,
                           ...uniformActionSize,
-                          backgroundColor: 'rgba(4, 98, 65, 0.12)',
+                          backgroundColor: 'rgba(4, 98, 65, 0.08)',
                           color: COLORS.CASTLETON_GREEN,
-                          border: `2px solid ${COLORS.CASTLETON_GREEN}`,
+                          border: `1px solid rgba(4, 98, 65, 0.35)`,
                         }}
                         title="View Resume"
                       >
@@ -788,9 +875,9 @@ const AdminDashboard = () => {
                         style={{
                           ...actionButtonStyle,
                           ...uniformActionSize,
-                          backgroundColor: 'rgba(255, 179, 71, 0.2)',
+                          backgroundColor: 'rgba(255, 179, 71, 0.15)',
                           color: COLORS.DARK_SERPENT,
-                          border: `2px solid ${COLORS.SAFFRON}`,
+                          border: '1px solid rgba(255, 179, 71, 0.5)',
                           textDecoration: 'none',
                         }}
                         title="Download Resume"
