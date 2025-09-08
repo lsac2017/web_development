@@ -13,9 +13,9 @@ const About = () => {
     // Video background container
     position: 'relative',
     overflow: 'hidden',
-    padding: isMobile ? `${SPACING.XXL} ${SPACING.LG}` : `${SPACING.SECTION} ${SPACING.XL}`,
+    padding: isMobile ? `${SPACING.XXL} ${SPACING.MD}` : `${SPACING.SECTION} ${SPACING.XL}`,
     textAlign: 'center',
-    minHeight: isMobile ? '60vh' : '65vh',
+    minHeight: isMobile ? '65vh' : '70vh',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
@@ -62,7 +62,7 @@ const About = () => {
   const titleStyle = {
     ...(isMobile ? TYPOGRAPHY.DISPLAY_MOBILE : TYPOGRAPHY.DISPLAY),
     color: COLORS.WHITE,
-    marginBottom: SPACING.XL,
+    marginBottom: isMobile ? SPACING.LG : SPACING.XL,
   };
 
   const subtitleStyle = {
@@ -73,13 +73,13 @@ const About = () => {
   };
 
   const sectionStyle = {
-    padding: `${SPACING.SECTION} ${SPACING.XL}`,
+    padding: `${isMobile ? SPACING.XXL : SPACING.SECTION} ${isMobile ? SPACING.MD : SPACING.XL}`,
     backgroundColor: COLORS.WHITE,
   };
 
   const cardStyle = {
     backgroundColor: COLORS.SEA_SALT,
-    padding: SPACING.XXL,
+    padding: isMobile ? SPACING.XL : SPACING.XXL,
     borderRadius: '16px',
     marginBottom: SPACING.XL,
     boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
@@ -126,13 +126,13 @@ const About = () => {
   const valuesGridStyle = {
     display: 'grid',
     gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(350px, 1fr))',
-    gap: isMobile ? SPACING.XL : SPACING.XXL,
+    gap: isMobile ? SPACING.LG : SPACING.XXL,
     marginTop: SPACING.XXL,
   };
 
   const valueCardStyle = {
     backgroundColor: COLORS.PAPER,
-    padding: SPACING.XXL,
+    padding: isMobile ? SPACING.XL : SPACING.XXL,
     borderRadius: '16px',
     textAlign: 'center',
     border: `2px solid ${COLORS.CASTLETON_GREEN}`,
@@ -144,8 +144,8 @@ const About = () => {
   };
 
   const valueIconStyle = {
-    fontSize: '4rem',
-    marginBottom: SPACING.LG,
+    fontSize: isMobile ? '2.5rem' : '4rem',
+    marginBottom: isMobile ? SPACING.MD : SPACING.LG,
     display: 'block',
   };
 
@@ -170,7 +170,7 @@ const About = () => {
   const impactStyle = {
     backgroundColor: COLORS.CASTLETON_GREEN,
     color: COLORS.WHITE,
-    padding: `${SPACING.SECTION} ${SPACING.XL}`,
+    padding: `${isMobile ? SPACING.XXL : SPACING.SECTION} ${isMobile ? SPACING.MD : SPACING.XL}`,
     textAlign: 'center',
   };
 
@@ -184,7 +184,7 @@ const About = () => {
     ...TYPOGRAPHY.BODY_LARGE,
     color: COLORS.WHITE,
     maxWidth: '1000px',
-    margin: `0 auto ${SPACING.XXL}`,
+    margin: `0 auto ${isMobile ? SPACING.XL : SPACING.XXL}`,
   };
 
   const ctaButtonStyle = {
