@@ -10,6 +10,7 @@ const Register = () => {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const isMobile = useMediaQuery(`(max-width: ${BREAKPOINTS.MOBILE})`);
+  const isSmallMobile = useMediaQuery('(max-width: 360px)');
   const navigate = useNavigate();
   const [step, setStep] = useState(0); // 0: Personal, 1: Experience, 2: Resume, 3: Summary
 
@@ -158,7 +159,7 @@ const Register = () => {
 
   const progressBarTrackStyle = {
     width: '100%',
-    height: 6,
+    height: isSmallMobile ? 4 : 6,
     backgroundColor: 'rgba(0,0,0,0.08)',
     borderRadius: 999,
     overflow: 'hidden',
@@ -185,8 +186,8 @@ const Register = () => {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    width: 36,
-    height: 36,
+    width: isSmallMobile ? 28 : isMobile ? 32 : 36,
+    height: isSmallMobile ? 28 : isMobile ? 32 : 36,
     borderRadius: '50%',
     border: `2px solid ${COLORS.CASTLETON_GREEN}`,
     backgroundColor: active ? COLORS.CASTLETON_GREEN : 'transparent',
@@ -343,8 +344,8 @@ const Register = () => {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'stretch',
-    gap: SPACING.MD,
-    marginTop: SPACING.XL,
+    gap: isSmallMobile ? SPACING.SM : SPACING.MD,
+    marginTop: isSmallMobile ? SPACING.LG : SPACING.XL,
   };
 
   const secondaryButtonStyle = {
@@ -818,7 +819,7 @@ const Register = () => {
                 <textarea
                   style={{
                     ...getFocusedInputStyle('relevantExperience'),
-                    minHeight: '160px',
+                    minHeight: isSmallMobile ? '120px' : '160px',
                     resize: 'vertical',
                     lineHeight: '1.6',
                   }}
