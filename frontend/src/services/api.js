@@ -1,6 +1,9 @@
 import axios from 'axios';
 
-export const API_BASE_URL = 'http://localhost:8080/api';
+// Prefer environment variable set at build time (Vercel/Netlify)
+// Example: REACT_APP_API_BASE_URL=https://your-backend.onrender.com/api
+export const API_BASE_URL =
+  process.env.REACT_APP_API_BASE_URL || '/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
