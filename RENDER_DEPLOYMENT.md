@@ -5,13 +5,11 @@
 Set these **exactly** in Render → Service → Environment:
 
 ```
-SPRING_DATASOURCE_URL=jdbc:mysql://YOUR_AIVEN_HOST:PORT/defaultdb?sslMode=REQUIRED&useSSL=true&allowPublicKeyRetrieval=true&serverTimezone=UTC
-SPRING_DATASOURCE_USERNAME=YOUR_AIVEN_USERNAME
-SPRING_DATASOURCE_PASSWORD=YOUR_AIVEN_PASSWORD
+SPRING_DATASOURCE_URL=jdbc:mysql://lifewoodbackend-lloydscottcabido2017-6108.d.aivencloud.com:20089/defaultdb?sslMode=REQUIRED&useSSL=true&allowPublicKeyRetrieval=true&serverTimezone=UTC
+SPRING_DATASOURCE_USERNAME=avnadmin
+SPRING_DATASOURCE_PASSWORD=REMOVED_SECRET
 SPRING_PROFILES_ACTIVE=prod
 ```
-
-Replace YOUR_AIVEN_HOST, PORT, USERNAME, and PASSWORD with your actual Aiven MySQL credentials.
 
 ## Service Configuration
 
