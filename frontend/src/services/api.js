@@ -5,6 +5,21 @@ import axios from 'axios';
 export const API_BASE_URL =
   process.env.REACT_APP_API_BASE_URL || '/api';
 
+// Warn in production if API_BASE_URL looks misconfigured
+if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production') {
+  try {
+    const url = new URL(API_BASE_URL, window.location.origin);
+    const missingApiSuffix = !url.pathname.endsWith('/api/');
+    const callingFrontendHost = url.origin === window.location.origin;
+    if (missingApiSuffix || callingFrontendHost) {
+      // eslint-disable-next-line no-console
+      console.warn('[API] Check REACT_APP_API_BASE_URL. Expected something like https://<render-app>.onrender.com/api');
+    }
+  } catch (_) {
+    // Ignore URL parse issues
+  }
+}
+
 const api = axios.create({
   baseURL: API_BASE_URL,
 });
