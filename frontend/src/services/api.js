@@ -13,7 +13,8 @@ const api = axios.create({
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('adminToken');
   const url = (config.url || '').toString();
-  const isAdminEndpoint = url.startsWith('/admin') || url.includes('/admin/');
+  const normalized = url.startsWith('/') ? url.slice(1) : url;
+  const isAdminEndpoint = normalized.startsWith('admin') || normalized.includes('admin/');
   if (token && isAdminEndpoint) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -35,36 +36,36 @@ api.interceptors.request.use((config) => {
 
 // Applicant API
 export const applicantAPI = {
-  getAll: () => api.get('/applicants'),
-  getById: (id) => api.get(`/applicants/${id}`),
-  create: (data) => api.post('/applicants', data),
-  update: (id, data) => api.put(`/applicants/${id}`, data),
-  updateStatus: (id, status) => api.put(`/applicants/${id}/status`, { status }),
-  approve: (id) => api.put(`/applicants/${id}/approve`),
-  decline: (id) => api.put(`/applicants/${id}/decline`),
-  delete: (id) => api.delete(`/applicants/${id}`),
-  getByProject: (project) => api.get(`/applicants/project/${project}`),
-  searchByName: (name) => api.get(`/applicants/search?name=${name}`),
+  getAll: () => api.get('applicants'),
+  getById: (id) => api.get(`applicants/${id}`),
+  create: (data) => api.post('applicants', data),
+  update: (id, data) => api.put(`applicants/${id}`, data),
+  updateStatus: (id, status) => api.put(`applicants/${id}/status`, { status }),
+  approve: (id) => api.put(`applicants/${id}/approve`),
+  decline: (id) => api.put(`applicants/${id}/decline`),
+  delete: (id) => api.delete(`applicants/${id}`),
+  getByProject: (project) => api.get(`applicants/project/${project}`),
+  searchByName: (name) => api.get(`applicants/search?name=${name}`),
   uploadResume: (id, file) => {
     const fd = new FormData();
     fd.append('resume', file);
-    return api.put(`/applicants/${id}/resume`, fd);
+    return api.put(`applicants/${id}/resume`, fd);
   },
 };
 
 // Admin API
 export const adminAPI = {
-  login: (credentials) => api.post('/admin/login', credentials),
-  validate: () => api.get('/admin/validate'),
+  login: (credentials) => api.post('admin/login', credentials),
+  validate: () => api.get('admin/validate'),
 };
 
 // Projects API
 export const projectsAPI = {
-  getAll: () => api.get('/projects'),
+  getAll: () => api.get('projects'),
 };
 
 export default api;
 
 // Helper: fetch resume as Blob for inline preview in AdminDashboard
 export const fetchResumeBlob = (id) =>
-  api.get(`/applicants/${id}/resume`, { responseType: 'blob' });
+  api.get(`applicants/${id}/resume`, { responseType: 'blob' });
