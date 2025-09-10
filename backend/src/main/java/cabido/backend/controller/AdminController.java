@@ -12,21 +12,17 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/admin")
-@CrossOrigin(origins = {
-    "http://localhost:3000",
-    "http://localhost:5173",
-    "https://web-development-l5kg.vercel.app",
-    "https://web-development-mi7t.onrender.com",
-    "https://lifewood-pi.vercel.app"
-})
 public class AdminController {
-    
+
     @Autowired
     private AdminService adminService;
 
     @Autowired
     private EmailService emailService;
-    
+
+    /**
+     * Admin login endpoint
+     */
     @PostMapping("/login")
     @PermitAll
     public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody AdminLoginDTO loginDTO) {
@@ -34,21 +30,27 @@ public class AdminController {
         if (response.isSuccess()) {
             return ResponseEntity.ok(response);
         } else {
-            return ResponseEntity.badRequest().body(response);
+            // Use 401 Unauthorized for failed login attempts
+            return ResponseEntity.status(401).body(response);
         }
     }
-    
+
+    /**
+     * Simple token validation (example only)
+     */
     @GetMapping("/validate")
     @PermitAll
-    public ResponseEntity<String> validateToken(@RequestHeader(value = "Authorization", required = false) String token) {
-        // Simple token validation for demo purposes
+    public ResponseEntity<String> validateToken(
+            @RequestHeader(value = "Authorization", required = false) String token) {
         if (token != null && token.equals("Bearer dummy-token")) {
             return ResponseEntity.ok("Token is valid");
         }
-        return ResponseEntity.badRequest().body("Invalid token");
+        return ResponseEntity.status(401).body("Invalid token");
     }
 
-    // Lightweight test endpoint to verify SMTP configuration
+    /**
+     * Lightweight test endpoint to verify SMTP configuration
+     */
     @PostMapping("/mail/test")
     @PermitAll
     public ResponseEntity<?> testSendMail(@RequestBody TestMailRequest req) {
