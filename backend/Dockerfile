@@ -6,11 +6,11 @@ FROM maven:3.9.6-eclipse-temurin-21 AS build
 WORKDIR /app
 
 # Pre-copy dependencies to leverage Docker layer caching
-COPY pom.xml .
+COPY backend/pom.xml .
 RUN mvn -B -q -e -DskipTests dependency:go-offline
 
 # Copy source code and build
-COPY src ./src
+COPY backend/src ./src
 RUN mvn -B -q -DskipTests package
 
 # ---- Runtime stage ----
