@@ -20,13 +20,6 @@ import java.nio.file.Path;
 
 @RestController
 @RequestMapping({"/api/applicants", "/applicants"})
-@CrossOrigin(origins = {
-    "http://localhost:3000",
-    "http://localhost:5173",
-    "https://web-development-l5kg.vercel.app",
-    "https://web-development-mi7t.onrender.com",
-    "https://lifewood-pi.vercel.app"
-})
 public class ApplicantController {
     
     @Autowired
