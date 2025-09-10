@@ -34,8 +34,12 @@ public class SecurityConfig {
                 .requestMatchers("/api/admin/login").permitAll()
                 .requestMatchers("/api/admin/validate").permitAll()
                 .requestMatchers("/api/admin/mail/test").permitAll()
-                // Allow OPTIONS preflight for login (important for CORS)
-                .requestMatchers(HttpMethod.OPTIONS, "/api/admin/login").permitAll()
+                // Allow all CORS preflight requests
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                // Backward-compat: temporarily allow missing /api prefix
+                .requestMatchers("/applicants/**").permitAll()
+                .requestMatchers("/projects/**").permitAll()
+                .requestMatchers("/admin/login", "/admin/validate").permitAll()
                 .anyRequest().authenticated()
             );
 
@@ -56,8 +60,9 @@ public class SecurityConfig {
             "https://lifewood-jc3mri0f1-lloydscottcabido2017-3463s-projects.vercel.app"
         ));
 
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setExposedHeaders(Arrays.asList("Authorization", "Content-Disposition"));
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
