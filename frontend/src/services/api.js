@@ -2,14 +2,32 @@ import axios from 'axios';
 
 // Prefer environment variable set at build time (Vercel/Netlify)
 // Example: REACT_APP_API_BASE_URL=https://your-backend.onrender.com/api
-export const API_BASE_URL =
-  process.env.REACT_APP_API_BASE_URL || '/api';
+export const API_BASE_URL = (() => {
+  const raw = process.env.REACT_APP_API_BASE_URL || '/api';
+  // If an absolute URL is provided but missing /api, append it to avoid mismatches
+  try {
+    if (typeof window !== 'undefined') {
+      const u = new URL(raw, window.location.origin);
+      const isAbsolute = /^https?:/i.test(u.origin);
+      const endsWithApi = u.pathname.endsWith('/api') || u.pathname.endsWith('/api/');
+      if (isAbsolute && !endsWithApi) {
+        // ensure single trailing /api/
+        const basePath = u.pathname.replace(/\/?$/, '') + '/api/';
+        u.pathname = basePath;
+        return u.toString().replace(/\/$/, ''); // drop trailing slash for axios baseURL
+      }
+      // For relative '/api', return as-is
+      return raw;
+    }
+  } catch (_) {}
+  return raw;
+})();
 
-// Warn in production if API_BASE_URL looks misconfigured
+// Warn in production if API_BASE_URL still looks misconfigured after normalization
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production') {
   try {
     const url = new URL(API_BASE_URL, window.location.origin);
-    const missingApiSuffix = !url.pathname.endsWith('/api/');
+    const missingApiSuffix = !(url.pathname.endsWith('/api') || url.pathname.endsWith('/api/')) && url.origin !== window.location.origin;
     const callingFrontendHost = url.origin === window.location.origin;
     if (missingApiSuffix || callingFrontendHost) {
       // eslint-disable-next-line no-console

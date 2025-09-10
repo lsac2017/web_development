@@ -19,7 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 @RestController
-@RequestMapping("/api/applicants")
+@RequestMapping({"/api/applicants", "/applicants"})
 @CrossOrigin(origins = {
     "http://localhost:3000",
     "http://localhost:5173",

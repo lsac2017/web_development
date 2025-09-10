@@ -61,6 +61,12 @@ const AdminDashboard = () => {
       setApplicants(response.data);
     } catch (error) {
       console.error('Error fetching applicants:', error);
+      if (error?.response?.status === 401) {
+        // Token missing/expired: force re-login
+        localStorage.removeItem('adminToken');
+        navigate('/admin/login');
+        return;
+      }
       toast.error('Error loading applicants', { position: 'top-right', autoClose: 3000 });
     } finally {
       setLoading(false);
@@ -551,7 +557,15 @@ const AdminDashboard = () => {
         await applicantAPI.update(editingApplicant.id, formData);
         toast.success('Applicant updated successfully', { position: 'top-right', autoClose: 3000 });
       } else {
-        await applicantAPI.create(formData);
+        // Create expects multipart/form-data payload similar to Register.jsx
+        const fd = new FormData();
+        fd.append('firstName', formData.firstName || '');
+        fd.append('lastName', formData.lastName || '');
+        fd.append('degree', formData.degree || '');
+        fd.append('relevantExperience', formData.relevantExperience || '');
+        fd.append('email', formData.email || '');
+        fd.append('projectAppliedFor', formData.projectAppliedFor || '');
+        await applicantAPI.create(fd);
         toast.success('Applicant added successfully', { position: 'top-right', autoClose: 3000 });
       }
       
@@ -561,6 +575,11 @@ const AdminDashboard = () => {
       resetForm();
     } catch (error) {
       console.error('Error saving applicant:', error);
+      if (error?.response?.status === 401) {
+        localStorage.removeItem('adminToken');
+        navigate('/admin/login');
+        return;
+      }
       toast.error('Error saving applicant', { position: 'top-right', autoClose: 3000 });
     }
   };
