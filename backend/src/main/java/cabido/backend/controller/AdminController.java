@@ -12,7 +12,13 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/admin")
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:5173"})
+@CrossOrigin(origins = {
+    "http://localhost:3000",
+    "http://localhost:5173",
+    "https://web-development-l5kg.vercel.app",
+    "https://web-development-mi7t.onrender.com",
+    "https://lifewood-pi.vercel.app"
+})
 public class AdminController {
     
     @Autowired
