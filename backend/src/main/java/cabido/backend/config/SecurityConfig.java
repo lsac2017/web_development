@@ -2,6 +2,7 @@ package cabido.backend.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -16,12 +17,12 @@ import java.util.Arrays;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-    
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -32,27 +33,33 @@ public class SecurityConfig {
                 .requestMatchers("/api/projects/**").permitAll()
                 .requestMatchers("/api/admin/login").permitAll()
                 .requestMatchers("/api/admin/validate").permitAll()
+                .requestMatchers("/api/admin/mail/test").permitAll()
+                // Allow OPTIONS preflight for login (important for CORS)
+                .requestMatchers(HttpMethod.OPTIONS, "/api/admin/login").permitAll()
                 .anyRequest().authenticated()
             );
-        
+
         return http.build();
     }
-    
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Allow localhost (dev) and deployed frontend origins (prod)
-        configuration.setAllowedOriginPatterns(Arrays.asList(
-                "http://localhost:*",
-                "http://127.0.0.1:*",
-                "https://web-development-l5kg.vercel.app",
-                "https://web-development-mi7t.onrender.com",
-                "https://lifewood-pi.vercel.app"
+
+        // Explicit origins — do NOT use wildcard * when allowCredentials=true
+        configuration.setAllowedOrigins(Arrays.asList(
+            "http://localhost:3000",
+            "http://localhost:5173",
+            "https://web-development-l5kg.vercel.app",
+            "https://web-development-mi7t.onrender.com",
+            "https://lifewood-pi.vercel.app",
+            "https://lifewood-jc3mri0f1-lloydscottcabido2017-3463s-projects.vercel.app"
         ));
+
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
-        
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
